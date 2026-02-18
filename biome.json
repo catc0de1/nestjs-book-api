@@ -20,6 +20,9 @@
 			"suspicious": {
 				"recommended": true,
 				"noExplicitAny": "off"
+			},
+			"style": {
+				"useImportType": "off"
 			}
 		}
 	},
@@ -34,7 +37,7 @@
 		"enabled": true,
 		"actions": {
 			"source": {
-				"organizeImports": "on"
+				"organizeImports": "off"
 			}
 		}
 	}
