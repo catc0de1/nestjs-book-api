@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+import { PrismaService } from '@/common/prisma/prisma.service';
 import { BookLocationController } from './book-location.controller';
 import { BookLocationService } from './book-location.service';
 
 @Module({
-  controllers: [BookLocationController],
-  providers: [BookLocationService]
+	controllers: [BookLocationController],
+	providers: [PrismaService, BookLocationService],
 })
 export class BookLocationModule {}
