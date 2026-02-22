@@ -19,6 +19,8 @@ import { z } from 'zod';
 						(val) => (val ? Number(val) : undefined),
 						z.number().min(10),
 					),
+
+					JWT_SECRET: z.string(),
 				});
 				return schema.parse(env);
 			},
