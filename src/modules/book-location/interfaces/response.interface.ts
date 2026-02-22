@@ -1,8 +1,8 @@
-import { MessageResponse } from '@/common/interfaces/response.interface';
-import { BookLocationData } from './data.interface';
+import type { MessageResponse } from '@/common/interfaces/response.interface';
+import type { BookLocation } from '@/generated/prisma/client';
 
 export interface CreatedResponse extends MessageResponse {
-	data: BookLocationData;
+	data: BookLocation;
 }
 
 export interface UpdatedResponse extends CreatedResponse {}
