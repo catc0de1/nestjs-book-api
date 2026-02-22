@@ -6,5 +6,6 @@ import { BookLocationService } from './book-location.service';
 @Module({
 	controllers: [BookLocationController],
 	providers: [PrismaService, BookLocationService],
+	exports: [BookLocationService],
 })
 export class BookLocationModule {}
