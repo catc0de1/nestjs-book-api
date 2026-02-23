@@ -30,7 +30,7 @@ export class BookCategoryController {
 	@Post()
 	@UsePipes(new ZodValidationPipe(createBookCategorySchema))
 	async create(@Body() body: CreateBookCategoryDto): Promise<CreatedResponse> {
-		const bookCategory = await this.bookCategoryService.craete(body);
+		const bookCategory = await this.bookCategoryService.create(body);
 
 		return {
 			message: 'Book Category created successfully',
@@ -53,10 +53,10 @@ export class BookCategoryController {
 
 	@Delete(':id')
 	async delete(@Param('id', ParseIntPipe) id: number): Promise<MessageResponse> {
-		const bookCategory = await this.bookCategoryService.delete(id);
+		const deletedBookCategory = await this.bookCategoryService.delete(id);
 
 		return {
-			message: `Book Category ${bookCategory.name} deleted successfully`,
+			message: `Book Category ${deletedBookCategory.name} deleted successfully`,
 		};
 	}
 }

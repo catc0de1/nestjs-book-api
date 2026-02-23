@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@/common/prisma/prisma.service';
 import { Prisma } from '@/generated/prisma/client';
@@ -6,6 +6,8 @@ import { generateBook } from './factories/book.factory';
 
 @Injectable()
 export class BookSeeder {
+	private readonly logger = new Logger(BookSeeder.name);
+
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly configService: ConfigService,
@@ -15,14 +17,14 @@ export class BookSeeder {
 		const NODE_ENV = this.configService.get<string>('NODE_ENV');
 
 		if (NODE_ENV === 'production') {
-			console.log('Environment is production, skipping books seed');
+			this.logger.log('Environment is production, skipping books seed');
 			return;
 		}
 
 		const count = await this.prisma.book.count();
 
 		if (count > 0) {
-			console.log('Books already exist, skipping seed');
+			this.logger.log('Books already exist, skipping seed');
 			return;
 		}
 
@@ -54,8 +56,10 @@ export class BookSeeder {
 					},
 				});
 			}
+
+			this.logger.warn('Seeding dummy factory books');
 		});
 
-		console.log('Books seeded successfully');
+		this.logger.log('Books seeded successfully');
 	}
 }

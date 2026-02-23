@@ -53,10 +53,10 @@ export class BookLocationController {
 
 	@Delete(':id')
 	async delete(@Param('id', ParseIntPipe) id: number): Promise<MessageResponse> {
-		const bookLocation = await this.bookLocationservice.delete(id);
+		const deletedBookLocation = await this.bookLocationservice.delete(id);
 
 		return {
-			message: `Book location ${bookLocation.name} deleted successfully`,
+			message: `Book location ${deletedBookLocation.name} deleted successfully`,
 		};
 	}
 }

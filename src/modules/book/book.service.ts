@@ -1,4 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { PinoLogger } from 'nestjs-pino';
+import { BaseService } from '@/common/services/base.service';
 import { PrismaService } from '@/common/prisma/prisma.service';
 import { Prisma } from '@/generated/prisma/client';
 import { BookCategoryService } from '@/modules/book-category/book-category.service';
@@ -8,12 +10,15 @@ import type { Book } from '@/generated/prisma/client';
 import type { CreateBookDto, GetAllQueryBookDto, UpdateBookDto } from './book.validator';
 
 @Injectable()
-export class BookService {
+export class BookService extends BaseService {
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly bookCategoryService: BookCategoryService,
 		private readonly bookLocationService: BookLocationService,
-	) {}
+		readonly logger: PinoLogger,
+	) {
+		super(logger);
+	}
 
 	async getAll(query?: GetAllQueryBookDto) {
 		const page = query?.page ?? 1;
@@ -86,12 +91,34 @@ export class BookService {
 
 	async create(body: CreateBookDto): Promise<Book> {
 		const category = await this.bookCategoryService.findUnique(body.category);
-		if (!category) throw new NotFoundException('Book Category does not exist');
+		if (!category) {
+			this.logger.warn(
+				{
+					event: 'BOOK_CREATE',
+					action: 'CHECK_CATEGORY',
+					categoryTarget: category,
+					success: false,
+				},
+				'Missing Book Category on create',
+			);
+			throw new NotFoundException('Book Category does not exist');
+		}
 
-		const location = await this.bookLocationService.findUnique(body.bookLocation);
-		if (!location) throw new NotFoundException('Book Location does not exist');
+		const bookLocation = await this.bookLocationService.findUnique(body.bookLocation);
+		if (!bookLocation) {
+			this.logger.warn(
+				{
+					event: 'BOOK_CREATE',
+					action: 'CHECK_LOCATION',
+					locationTarget: bookLocation,
+					success: false,
+				},
+				'Missing Book Location on create',
+			);
+			throw new NotFoundException('Book Location does not exist');
+		}
 
-		return this.prisma.book.create({
+		const book = await this.prisma.book.create({
 			data: {
 				title: body.title,
 				author: body.author,
@@ -110,22 +137,54 @@ export class BookService {
 				},
 			},
 		});
+
+		this.logger.info(
+			{
+				event: 'BOOK_CREATE',
+				action: 'CREATE_BOOK',
+				bookIdTarget: book.id,
+				success: true,
+			},
+			'Book created',
+		);
+
+		return book;
 	}
 
 	async update(id: number, body: UpdateBookDto): Promise<Book> {
 		if (body.category) {
 			const category = await this.bookCategoryService.findUnique(body.category);
-
-			if (!category) throw new NotFoundException('Book category does not exist');
+			if (!category) {
+				this.logger.warn(
+					{
+						event: 'BOOK_UPDATE',
+						action: 'CHECK_CATEGORY',
+						categoryTarget: category,
+						success: false,
+					},
+					'Missing Book Category on update',
+				);
+				throw new NotFoundException('Book category does not exist');
+			}
 		}
 
 		if (body.bookLocation) {
 			const bookLocation = await this.bookLocationService.findUnique(body.bookLocation);
-
-			if (!bookLocation) throw new NotFoundException('Book location does not exist');
+			if (!bookLocation) {
+				this.logger.warn(
+					{
+						event: 'BOOK_UPDATE',
+						action: 'CHECK_LOCATION',
+						locationTarget: bookLocation,
+						success: false,
+					},
+					'Missing Book Location on update',
+				);
+				throw new NotFoundException('Book location does not exist');
+			}
 		}
 
-		return this.prisma.book.update({
+		const book = await this.prisma.book.update({
 			where: { id },
 			data: {
 				...(body.title && { title: body.title }),
@@ -149,11 +208,35 @@ export class BookService {
 				}),
 			},
 		});
+
+		this.logger.info(
+			{
+				event: 'BOOK_UPDATE',
+				action: 'UPDATE_BOOK',
+				bookIdTarget: book.id,
+				success: true,
+			},
+			'Book updated',
+		);
+
+		return book;
 	}
 
-	delete(id: number): Promise<Book> {
-		return this.prisma.book.delete({
+	async delete(id: number): Promise<Book> {
+		const deletedBook = await this.prisma.book.delete({
 			where: { id },
 		});
+
+		this.logger.info(
+			{
+				event: 'BOOK_DELETED',
+				action: 'DELETED_BOOK',
+				bookIdTarget: id,
+				success: true,
+			},
+			'Book deleted',
+		);
+
+		return deletedBook;
 	}
 }

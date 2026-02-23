@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@/common/prisma/prisma.service';
 import { AuthService } from '@/modules/auth/auth.service';
 
 @Injectable()
 export class AdminSeeder {
+	private readonly logger = new Logger(AdminSeeder.name);
+
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly authService: AuthService,
@@ -15,7 +17,7 @@ export class AdminSeeder {
 		const count = await this.prisma.admin.count();
 
 		if (count > 0) {
-			console.log('Admin already exist, skipping seed');
+			this.logger.log('Admin already exist, skipping seed');
 			return;
 		}
 
@@ -29,6 +31,7 @@ export class AdminSeeder {
 			},
 		});
 
-		console.log('Admin seeded successfully');
+		this.logger.warn('Seeding default admin account');
+		this.logger.log('Admin seeded successfully');
 	}
 }
