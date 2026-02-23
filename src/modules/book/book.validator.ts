@@ -1,6 +1,5 @@
 import { z } from 'zod';
-
-const currentYear = new Date().getFullYear();
+import { getCurrentYear } from '@/common/lib/getTime';
 
 export const createBookSchema = z.object({
 	title: z.string().min(1, 'Title is required'),
@@ -9,7 +8,7 @@ export const createBookSchema = z.object({
 		.number()
 		.int()
 		.min(1, 'Year invalid')
-		.max(currentYear, `Year cannot be greater than ${currentYear}`),
+		.max(getCurrentYear, `Year cannot be greater than ${getCurrentYear}`),
 	publisher: z.string().nullable().optional().default(null),
 	description: z.string().nullable().optional().default(null),
 	category: z.string().min(1, 'Book category is required'),
@@ -26,7 +25,7 @@ export const updateBookSchema = z
 			.int()
 			.positive()
 			.min(1, 'Year invalid')
-			.max(currentYear, `Year cannot be greater than ${currentYear}`)
+			.max(getCurrentYear, `Year cannot be greater than ${getCurrentYear}`)
 			.optional(),
 		publisher: z.string().optional(),
 		description: z.string().optional(),

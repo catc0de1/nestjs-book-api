@@ -1,8 +1,8 @@
-export type Data = {
+export type BookCategoryData = {
 	name: string;
 };
 
-export const data: Data[] = [
+export const bookCategoryData: BookCategoryData[] = [
 	{ name: 'Programming' },
 	{ name: 'Software Engineering' },
 	{ name: 'Frontend' },
@@ -25,4 +25,4 @@ export const data: Data[] = [
 	{ name: 'Algorithms' },
 	{ name: 'ComputerScience' },
 	{ name: 'Others' },
-];
+] as const;
