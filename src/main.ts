@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from 'nestjs-pino';
+import { fastifyHelmet } from '@fastify/helmet';
 import { PrismaExceptionFilter } from './config/filters/prisma-exception.filter';
 import { AppModule } from './app.module';
 
@@ -15,6 +16,8 @@ async function bootstrap() {
 	const configService = app.get(ConfigService);
 
 	app.useLogger(app.get(Logger));
+
+	await app.register(fastifyHelmet);
 
 	app.setGlobalPrefix('api');
 
