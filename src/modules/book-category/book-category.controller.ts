@@ -15,8 +15,11 @@ import { createBookCategorySchema, updateBookCategorySchema } from './book-categ
 
 import type { BookCategory } from '@/generated/prisma/client';
 import type { CreateBookCategoryDto, UpdateBookCategoryDto } from './book-category.validator';
-import type { MessageResponse } from '@/common/interfaces/response.interface';
-import type { CreatedResponse, UpdatedResponse } from './interfaces/response.interface';
+import type {
+	CreatedResponse,
+	DeletedResponse,
+	UpdatedResponse,
+} from './interfaces/response.interface';
 
 @Controller('book-category')
 export class BookCategoryController {
@@ -52,7 +55,7 @@ export class BookCategoryController {
 	}
 
 	@Delete(':id')
-	async delete(@Param('id', ParseIntPipe) id: number): Promise<MessageResponse> {
+	async delete(@Param('id', ParseIntPipe) id: number): Promise<DeletedResponse> {
 		const deletedBookCategory = await this.bookCategoryService.delete(id);
 
 		return {

@@ -14,9 +14,9 @@ import { BookService } from './book.service';
 import { createBookSchema, getAllQueryBookSchema, updateBookSchema } from './book.validator';
 
 import type { CreateBookDto, GetAllQueryBookDto, UpdateBookDto } from './book.validator';
-import type { MessageResponse } from '@/common/interfaces/response.interface';
 import type {
 	CreatedResponse,
+	DeletedResponse,
 	PaginatedResponse,
 	UpdatedResponse,
 } from './interfaces/response.interface';
@@ -58,7 +58,7 @@ export class BookController {
 	}
 
 	@Delete(':id')
-	async delete(@Param('id', ParseIntPipe) id: number): Promise<MessageResponse> {
+	async delete(@Param('id', ParseIntPipe) id: number): Promise<DeletedResponse> {
 		const deletedBook = await this.bookService.delete(id);
 
 		return {

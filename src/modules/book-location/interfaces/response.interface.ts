@@ -6,3 +6,5 @@ export interface CreatedResponse extends MessageResponse {
 }
 
 export interface UpdatedResponse extends CreatedResponse {}
+
+export interface DeletedResponse extends MessageResponse {}

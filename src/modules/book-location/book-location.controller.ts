@@ -15,8 +15,11 @@ import { createBookLocationSchema, updateBookLocationSchema } from './book-locat
 
 import type { BookLocation } from '@/generated/prisma/client';
 import type { CreateBookLocationDto, UpdateBookLocationDto } from './book-location.validator';
-import type { MessageResponse } from '@/common/interfaces/response.interface';
-import type { CreatedResponse, UpdatedResponse } from './interfaces/response.interface';
+import type {
+	CreatedResponse,
+	DeletedResponse,
+	UpdatedResponse,
+} from './interfaces/response.interface';
 
 @Controller('book-location')
 export class BookLocationController {
@@ -52,7 +55,7 @@ export class BookLocationController {
 	}
 
 	@Delete(':id')
-	async delete(@Param('id', ParseIntPipe) id: number): Promise<MessageResponse> {
+	async delete(@Param('id', ParseIntPipe) id: number): Promise<DeletedResponse> {
 		const deletedBookLocation = await this.bookLocationservice.delete(id);
 
 		return {
