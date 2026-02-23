@@ -51,6 +51,17 @@ import { randomUUID } from 'node:crypto';
 							if (req.method === 'GET') return 'silent';
 							return 'info';
 						},
+
+						serializers: {
+							req(req) {
+								return {
+									id: req.id,
+									method: req.method,
+									url: req.url,
+									remoteAddress: req.remoteAddress,
+								};
+							},
+						},
 					},
 				};
 			},

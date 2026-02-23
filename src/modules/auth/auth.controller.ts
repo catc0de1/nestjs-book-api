@@ -29,7 +29,9 @@ export class AuthController {
 	}
 
 	@Post('logout')
-	async logout(): Promise<LogoutResponse> {
+	logout(): LogoutResponse {
+		this.authService.logout();
+
 		return {
 			message: 'Logout successfully',
 		};
