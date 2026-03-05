@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma/prisma.service';
 
 import type { HealthResponse } from './interfaces/response.interface';
@@ -16,7 +16,9 @@ export class HealthService {
 			await this.prisma.$queryRaw`SELECT 1`;
 			return { status: 'ok' };
 		} catch (_err) {
-			return { status: 'error' };
+			throw new ServiceUnavailableException({
+				status: 'error',
+			});
 		}
 	}
 }
