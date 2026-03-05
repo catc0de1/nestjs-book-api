@@ -3,9 +3,11 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { ZodValidationPipe } from '@/common/pipes/zod.pipe';
 import { Public } from './decorators/public.decorator';
 import { AuthService } from './auth.service';
-import { changePasswordSchema, loginSchema } from './auth.validator';
+import { changePasswordSchema } from './schemas/change-password.schema';
+import { loginSchema } from './schemas/login.schema';
 
-import type { ChangePasswordDto, LoginDto } from './auth.validator';
+import type { ChangePasswordDto } from './schemas/change-password.schema';
+import type { LoginDto } from './schemas/login.schema';
 import type {
 	ChangePasswordResponse,
 	LoginResponse,

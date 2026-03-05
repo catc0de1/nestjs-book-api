@@ -7,7 +7,9 @@ import { BookCategoryService } from '@/modules/book-category/book-category.servi
 import { BookLocationService } from '@/modules/book-location/book-location.service';
 
 import type { Book } from '@/generated/prisma/client';
-import type { CreateBookDto, GetAllQueryBookDto, UpdateBookDto } from './book.validator';
+import type { CreateBookDto } from './schemas/create-book.schema';
+import type { GetAllQueryBookDto } from './schemas/get-all-query.schema';
+import type { UpdateBookDto } from './schemas/update-book.schema';
 
 @Injectable()
 export class BookService extends BaseService {

@@ -7,7 +7,8 @@ import { PrismaService } from '@/common/prisma/prisma.service';
 import { hash, compare } from 'bcrypt';
 
 import type { Admin } from '@/generated/prisma/client';
-import type { ChangePasswordDto, LoginDto } from './auth.validator';
+import type { ChangePasswordDto } from './schemas/change-password.schema';
+import type { LoginDto } from './schemas/login.schema';
 
 @Injectable()
 export class AuthService extends BaseService {

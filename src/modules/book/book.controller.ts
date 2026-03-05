@@ -11,9 +11,13 @@ import {
 } from '@nestjs/common';
 import { ZodValidationPipe } from '@/common/pipes/zod.pipe';
 import { BookService } from './book.service';
-import { createBookSchema, getAllQueryBookSchema, updateBookSchema } from './book.validator';
+import { createBookSchema } from './schemas/create-book.schema';
+import { getAllQueryBookSchema } from './schemas/get-all-query.schema';
+import { updateBookSchema } from './schemas/update-book.schema';
 
-import type { CreateBookDto, GetAllQueryBookDto, UpdateBookDto } from './book.validator';
+import type { CreateBookDto } from './schemas/create-book.schema';
+import type { GetAllQueryBookDto } from './schemas/get-all-query.schema';
+import type { UpdateBookDto } from './schemas/update-book.schema';
 import type {
 	CreatedResponse,
 	DeletedResponse,

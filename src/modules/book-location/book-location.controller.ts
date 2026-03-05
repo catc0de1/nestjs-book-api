@@ -11,10 +11,12 @@ import {
 } from '@nestjs/common';
 import { ZodValidationPipe } from '@/common/pipes/zod.pipe';
 import { BookLocationService } from './book-location.service';
-import { createBookLocationSchema, updateBookLocationSchema } from './book-location.validator';
+import { createBookLocationSchema } from './schemas/create-book-location.schema';
+import { updateBookLocationSchema } from './schemas/update-book-location.schema';
 
 import type { BookLocation } from '@/generated/prisma/client';
-import type { CreateBookLocationDto, UpdateBookLocationDto } from './book-location.validator';
+import type { CreateBookLocationDto } from './schemas/create-book-location.schema';
+import type { UpdateBookLocationDto } from './schemas/update-book-location.schema';
 import type {
 	CreatedResponse,
 	DeletedResponse,

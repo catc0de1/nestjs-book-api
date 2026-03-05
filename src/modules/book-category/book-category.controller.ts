@@ -11,10 +11,12 @@ import {
 } from '@nestjs/common';
 import { ZodValidationPipe } from '@/common/pipes/zod.pipe';
 import { BookCategoryService } from './book-category.service';
-import { createBookCategorySchema, updateBookCategorySchema } from './book-category.validator';
+import { createBookCategorySchema } from './schemas/create-book-category.schema';
+import { updateBookCategorySchema } from './schemas/update-book-category.schema';
 
 import type { BookCategory } from '@/generated/prisma/client';
-import type { CreateBookCategoryDto, UpdateBookCategoryDto } from './book-category.validator';
+import type { CreateBookCategoryDto } from './schemas/create-book-category.schema';
+import type { UpdateBookCategoryDto } from './schemas/update-book-category.schema';
 import type {
 	CreatedResponse,
 	DeletedResponse,
