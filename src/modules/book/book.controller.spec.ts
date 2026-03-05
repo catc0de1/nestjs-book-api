@@ -1,16 +1,4 @@
-jest.mock('@/generated/prisma/client', () => {
-	return {
-		PrismaClient: jest.fn().mockImplementation(() => ({
-			book: {
-				findMany: jest.fn(),
-				count: jest.fn(),
-				create: jest.fn(),
-				update: jest.fn(),
-				delete: jest.fn(),
-			},
-		})),
-	};
-});
+jest.mock('@/generated/prisma/client');
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { BookController } from './book.controller';
