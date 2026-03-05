@@ -7,18 +7,25 @@ import type { HealthResponse } from './interfaces/response.interface';
 export class HealthService {
 	constructor(private readonly prisma: PrismaService) {}
 
+	private baseResponse(status: 'ok' | 'error', message?: string): HealthResponse {
+		return {
+			status,
+			uptime: Math.floor(process.uptime()),
+			timestamp: new Date().toISOString(),
+			message,
+		};
+	}
+
 	apiCheck(): HealthResponse {
-		return { status: 'ok' };
+		return this.baseResponse('ok');
 	}
 
 	async dbCheck(): Promise<HealthResponse> {
 		try {
 			await this.prisma.$queryRaw`SELECT 1`;
-			return { status: 'ok' };
+			return this.baseResponse('ok');
 		} catch (_err) {
-			throw new ServiceUnavailableException({
-				status: 'error',
-			});
+			throw new ServiceUnavailableException(this.baseResponse('error', 'Database not reachable'));
 		}
 	}
 }

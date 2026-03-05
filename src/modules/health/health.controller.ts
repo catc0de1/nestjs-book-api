@@ -13,7 +13,7 @@ export class HealthController {
 	}
 
 	@Get('db')
-	dbCheck(): Promise<HealthResponse> {
+	async dbCheck(): Promise<HealthResponse> {
 		return this.healthService.dbCheck();
 	}
 }

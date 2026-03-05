@@ -1,3 +1,6 @@
 export interface HealthResponse {
-	status: string;
+	status: 'ok' | 'error';
+	uptime: number;
+	timestamp: string;
+	message?: string;
 }
