@@ -61,7 +61,7 @@ export class BookLocationController {
 		const deletedBookLocation = await this.bookLocationservice.delete(id);
 
 		return {
-			message: `Book location ${deletedBookLocation.name} deleted successfully`,
+			message: `Book Location ${deletedBookLocation.name} deleted successfully`,
 		};
 	}
 }
