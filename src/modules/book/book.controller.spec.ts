@@ -1,5 +1,3 @@
-jest.mock('@/generated/prisma/client');
-
 import { Test, TestingModule } from '@nestjs/testing';
 import { BookController } from './book.controller';
 import { BookService } from './book.service';
@@ -15,6 +13,8 @@ describe('BookController', () => {
 	};
 
 	beforeEach(async () => {
+		jest.clearAllMocks();
+
 		const module: TestingModule = await Test.createTestingModule({
 			controllers: [BookController],
 			providers: [
@@ -26,7 +26,6 @@ describe('BookController', () => {
 		}).compile();
 
 		controller = module.get<BookController>(BookController);
-		jest.clearAllMocks();
 	});
 
 	it('should be defined', () => {

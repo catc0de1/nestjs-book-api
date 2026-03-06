@@ -1,5 +1,3 @@
-jest.mock('@/common/lib/getTime');
-
 import { createBookSchema } from './create-book.schema';
 
 describe('createBookSchema', () => {

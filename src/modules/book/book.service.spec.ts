@@ -1,5 +1,3 @@
-jest.mock('@/generated/prisma/client');
-
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { BookService } from './book.service';
@@ -8,36 +6,18 @@ import { BookCategoryService } from '@/modules/book-category/book-category.servi
 import { BookLocationService } from '@/modules/book-location/book-location.service';
 import { PinoLogger } from 'nestjs-pino';
 
+import { mockPrisma } from 'mocks/@/generated/prisma/client';
+import { mockLogger } from '@/testing/mocks/logger';
+
 describe('BookService', () => {
 	let service: BookService;
 
-	const mockPrisma = {
-		book: {
-			findMany: jest.fn(),
-			count: jest.fn(),
-			create: jest.fn(),
-			update: jest.fn(),
-			delete: jest.fn(),
-		},
-	};
-
-	const mockBookCategoryService = {
-		findUnique: jest.fn(),
-	};
-
-	const mockBookLocationService = {
-		findUnique: jest.fn(),
-	};
-
-	const mockLogger = {
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		debug: jest.fn(),
-		setContext: jest.fn(),
-	};
+	const mockBookCategoryService = mockPrisma.bookCategory;
+	const mockBookLocationService = mockPrisma.bookLocation;
 
 	beforeEach(async () => {
+		jest.clearAllMocks();
+
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
 				BookService,
@@ -49,7 +29,6 @@ describe('BookService', () => {
 		}).compile();
 
 		service = module.get<BookService>(BookService);
-		jest.clearAllMocks();
 	});
 
 	it('should be defined', () => {

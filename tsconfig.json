@@ -15,7 +15,8 @@
 		"outDir": "./dist",
 		"baseUrl": "./",
 		"paths": {
-			"@/*": ["src/*"]
+			"@/*": ["src/*"],
+			"mocks/*": ["__mocks__/*"]
 		},
 		"typeRoots": ["./node_modules/@types", "src/@types"],
 		"incremental": true,

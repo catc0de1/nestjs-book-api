@@ -1,5 +1,3 @@
-jest.mock('@/common/lib/getTime');
-
 import { updateBookSchema } from './update-book.schema';
 
 describe('updateBookSchema', () => {

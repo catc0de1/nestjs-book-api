@@ -3,20 +3,19 @@ import { ServiceUnavailableException } from '@nestjs/common';
 import { HealthService } from './health.service';
 import { PrismaService } from '@/common/prisma/prisma.service';
 
+import { mockPrisma } from 'mocks/@/generated/prisma/client';
+
 describe('HealthService', () => {
 	let service: HealthService;
 
-	const mockPrisma = {
-		$queryRaw: jest.fn(),
-	};
-
 	beforeEach(async () => {
+		jest.clearAllMocks();
+
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [HealthService, { provide: PrismaService, useValue: mockPrisma }],
 		}).compile();
 
 		service = module.get<HealthService>(HealthService);
-		jest.clearAllMocks();
 	});
 
 	it('should be defined', () => {

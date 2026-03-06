@@ -1,11 +1,3 @@
-export const mockPrisma = {
-	book: {
-		findMany: jest.fn(),
-		count: jest.fn(),
-		create: jest.fn(),
-		update: jest.fn(),
-		delete: jest.fn(),
-	},
-};
+import { mockPrisma } from 'mocks/@/generated/prisma/client';
 
 export const PrismaService = jest.fn(() => mockPrisma);
