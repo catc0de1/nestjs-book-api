@@ -18,7 +18,7 @@ describe('createBookCategorySchema', () => {
 	});
 
 	describe('failed cases', () => {
-		it('should pass with empty data', () => {
+		it('should fail with empty data', () => {
 			const result = createBookCategorySchema.safeParse({
 				name: '',
 			});
