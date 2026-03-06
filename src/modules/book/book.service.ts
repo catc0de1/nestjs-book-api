@@ -8,7 +8,7 @@ import { BookLocationService } from '@/modules/book-location/book-location.servi
 
 import type { Book } from '@/generated/prisma/client';
 import type { CreateBookDto } from './schemas/create-book.schema';
-import type { GetAllQueryBookDto } from './schemas/get-all-query.schema';
+import type { GetAllQueryBookDto } from './schemas/get-all-query-book.schema';
 import type { UpdateBookDto } from './schemas/update-book.schema';
 
 @Injectable()

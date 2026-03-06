@@ -1,4 +1,4 @@
-import { getAllQueryBookSchema } from './get-all-query.schema';
+import { getAllQueryBookSchema } from './get-all-query-book.schema';
 
 describe('getAllQueryBookSchema', () => {
 	describe('default values', () => {
