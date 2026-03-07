@@ -43,7 +43,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
 		// Default exception
 		return reply.status(500).send({
 			statusCode: 500,
-			messsage: 'Internal server error',
+			message: 'Internal server error',
 		});
 	}
 }

@@ -32,3 +32,16 @@ export const mockPrisma = {
 };
 
 export const PrismaClient = jest.fn(() => mockPrisma);
+
+export const Prisma = {
+	PrismaClientKnownRequestError: class PrismaClientKnownRequestError extends Error {
+		code: string;
+		meta?: unknown;
+
+		constructor(message: string, options: { code: string; meta?: unknown }) {
+			super(message);
+			this.code = options.code;
+			this.meta = options.meta;
+		}
+	},
+};
