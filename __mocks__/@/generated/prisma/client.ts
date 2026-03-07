@@ -23,6 +23,11 @@ export const mockPrisma = {
 		findUnique: jest.fn(),
 	},
 
+	admin: {
+		findFirst: jest.fn(),
+		update: jest.fn(),
+	},
+
 	$queryRaw: jest.fn(),
 };
 
