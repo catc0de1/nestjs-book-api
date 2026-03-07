@@ -10,6 +10,7 @@ import type { Book } from '@/generated/prisma/client';
 import type { CreateBookDto } from './schemas/create-book.schema';
 import type { GetAllQueryBookDto } from './schemas/get-all-query-book.schema';
 import type { UpdateBookDto } from './schemas/update-book.schema';
+import type { PaginatedResponse } from './interfaces/response.interface';
 
 @Injectable()
 export class BookService extends BaseService {
@@ -22,7 +23,7 @@ export class BookService extends BaseService {
 		super(logger);
 	}
 
-	async getAll(query?: GetAllQueryBookDto) {
+	async getAll(query?: GetAllQueryBookDto): Promise<PaginatedResponse> {
 		const page = query?.page ?? 1;
 		const limit = query?.limit ?? 10;
 

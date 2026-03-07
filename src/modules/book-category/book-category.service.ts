@@ -91,7 +91,7 @@ export class BookCategoryService extends BaseService {
 		return deletedBookCategory;
 	}
 
-	findUnique(name: string) {
+	findUnique(name: string): Promise<BookCategory | null> {
 		return this.prisma.bookCategory.findUnique({
 			where: { name },
 		});

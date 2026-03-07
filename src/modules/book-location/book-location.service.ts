@@ -91,7 +91,7 @@ export class BookLocationService extends BaseService {
 		return deletedBookLocation;
 	}
 
-	findUnique(name: string) {
+	findUnique(name: string): Promise<BookLocation | null> {
 		return this.prisma.bookLocation.findUnique({
 			where: { name },
 		});
