@@ -21,6 +21,7 @@ describe('updateBookCategorySchema', () => {
 		describe('strict validation', () => {
 			it('should throw if unknown field provided', () => {
 				const result = updateBookCategorySchema.safeParse({
+					...validData,
 					unknownField: 'test',
 				});
 

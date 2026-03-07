@@ -21,6 +21,7 @@ describe('loginSchema', () => {
 		describe('strict validation', () => {
 			it('should throw if unknown field provided', () => {
 				const result = loginSchema.safeParse({
+					...validData,
 					unknownField: 'test',
 				});
 

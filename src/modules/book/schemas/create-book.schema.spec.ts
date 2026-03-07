@@ -54,6 +54,7 @@ describe('createBookSchema', () => {
 		describe('strict validation', () => {
 			it('should throw if unknown field provided', () => {
 				const result = createBookSchema.safeParse({
+					...validData,
 					unknownField: 'test',
 				});
 

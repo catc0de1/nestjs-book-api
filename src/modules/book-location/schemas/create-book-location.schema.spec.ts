@@ -21,6 +21,7 @@ describe('createBookLocationSchema', () => {
 		describe('strict validation', () => {
 			it('should throw if unknown field provided', () => {
 				const result = createBookLocationSchema.safeParse({
+					...validData,
 					unknownField: 'test',
 				});
 

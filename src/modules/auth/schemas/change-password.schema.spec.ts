@@ -22,6 +22,7 @@ describe('changePasswordSchema', () => {
 		describe('strict validation', () => {
 			it('should throw if unknown field provided', () => {
 				const result = changePasswordSchema.safeParse({
+					...validData,
 					unknownField: 'test',
 				});
 
