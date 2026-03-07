@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const loginSchema = z.object({
+export const loginSchema = z.strictObject({
 	password: z.string().min(1, 'Password is required'),
 });
 export type LoginDto = z.infer<typeof loginSchema>;

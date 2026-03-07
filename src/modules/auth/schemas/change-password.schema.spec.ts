@@ -19,35 +19,57 @@ describe('changePasswordSchema', () => {
 	});
 
 	describe('fail cases', () => {
-		it('should fail if oldPassword empty', () => {
-			const result = changePasswordSchema.safeParse({
-				...validData,
-				oldPassword: null,
-			});
-
-			expect(result.success).toBe(false);
-		});
-
-		it('should fail if newPassword empty', () => {
-			const result = changePasswordSchema.safeParse({
-				...validData,
-				newPassword: '',
-			});
-
-			expect(result.success).toBe(false);
-		});
-
-		describe('newPassword regex', () => {
-			it.each([
-				['not contain uppercase letter', 'notadmin123'],
-				['not contain lowercase letter', 'NOTADMIN123'],
-				['not contain number', 'notAdmin'],
-				['not contain letters', '123456'],
-				['too short', 'nA123'],
-			])('should fail for invalid newPassword regex: %s', (_, newPassword) => {
-				const result = changePasswordSchema.safeParse(newPassword);
+		describe('strict validation', () => {
+			it('should throw if unknown field provided', () => {
+				const result = changePasswordSchema.safeParse({
+					unknownField: 'test',
+				});
 
 				expect(result.success).toBe(false);
+			});
+		});
+
+		describe('oldPassword validation', () => {
+			it('should throw if oldPassword null', () => {
+				const result = changePasswordSchema.safeParse({
+					...validData,
+					oldPassword: null,
+				});
+
+				expect(result.success).toBe(false);
+			});
+		});
+
+		describe('newPassword validation', () => {
+			it('should throw if newPassword less than 6 chars', () => {
+				const result = changePasswordSchema.safeParse({
+					...validData,
+					newPassword: 'aA1',
+				});
+
+				expect(result.success).toBe(false);
+				const msg = 'Password must be at least 6 characters long';
+				if (!result.success) expect(result.error.issues[0].message).toBe(msg);
+			});
+
+			describe('newPassword regex', () => {
+				it.each([
+					['not contain uppercase letter', 'notadmin123'],
+					['not contain lowercase letter', 'NOTADMIN123'],
+					['not contain number', 'notAdmin'],
+					['not contain letters', '123456'],
+				])('should throw for invalid newPassword regex: %s', (_, newPassword) => {
+					const result = changePasswordSchema.safeParse({
+						...validData,
+						newPassword,
+					});
+
+					expect(result.success).toBe(false);
+
+					const msg =
+						'Password must contain at least one uppercase letter, one lowercase letter, and one number';
+					if (!result.success) expect(result.error.issues[0].message).toBe(msg);
+				});
 			});
 		});
 	});

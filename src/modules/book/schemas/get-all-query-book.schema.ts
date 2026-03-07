@@ -1,19 +1,30 @@
 import { z } from 'zod';
+import { filterQuery } from '@/common/validators/filter-query.validator';
+import { sortQuery } from '@/common/validators/sort-query.validator';
+import { clamp } from '@/common/lib/clamp';
 
-export const getAllQueryBookSchema = z.object({
-	page: z.coerce.number().int().positive().min(1).default(1),
-	limit: z.coerce.number().int().positive().min(1).max(100).default(10),
+export const getAllQueryBookSchema = z.strictObject({
+	page: z.coerce
+		.number()
+		.transform((v) => Math.floor(v))
+		.transform(clamp(1, Infinity))
+		.default(1),
+	limit: z.coerce
+		.number()
+		.transform((v) => Math.floor(v))
+		.transform(clamp(1, 100))
+		.default(10),
 
-	createdAtSort: z.enum(['asc', 'desc']).nullable().default(null),
-	titleSort: z.enum(['asc', 'desc']).nullable().default(null),
-	authorSort: z.enum(['asc', 'desc']).nullable().default(null),
-	yearSort: z.enum(['asc', 'desc']).nullable().default(null),
-	publisherSort: z.enum(['asc', 'desc']).nullable().default(null),
-	categorySort: z.enum(['asc', 'desc']).nullable().default(null),
-	bookLocationSort: z.enum(['asc', 'desc']).nullable().default(null),
+	createdAtSort: sortQuery,
+	titleSort: sortQuery,
+	authorSort: sortQuery,
+	yearSort: sortQuery,
+	publisherSort: sortQuery,
+	categorySort: sortQuery,
+	bookLocationSort: sortQuery,
 
-	bookCategoryFilter: z.string().nullable().default(null),
-	bookLocationFilter: z.string().nullable().default(null),
-	titleFilter: z.string().nullable().default(null),
+	bookCategoryFilter: filterQuery,
+	bookLocationFilter: filterQuery,
+	titleFilter: filterQuery,
 });
 export type GetAllQueryBookDto = z.infer<typeof getAllQueryBookSchema>;

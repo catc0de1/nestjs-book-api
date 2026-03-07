@@ -17,21 +17,30 @@ describe('createBookLocationSchema', () => {
 		});
 	});
 
-	describe('failed cases', () => {
-		it('should fail with empty data', () => {
-			const result = createBookLocationSchema.safeParse({
-				name: '',
-			});
+	describe('fail cases', () => {
+		describe('strict validation', () => {
+			it('should throw if unknown field provided', () => {
+				const result = createBookLocationSchema.safeParse({
+					unknownField: 'test',
+				});
 
-			expect(result.success).toBe(false);
+				expect(result.success).toBe(false);
+			});
 		});
 
-		it('should fail with over 50 lenght data', () => {
-			const result = createBookLocationSchema.safeParse({
-				name: '12345678901234567890123456789012345678901234567890A',
-			});
+		describe('name validation', () => {
+			it.each([
+				['empty', '', 'Book location is required'],
+				['longer than 50 chars', 'a'.repeat(51), 'Book location invalid'],
+			])('should throw if name is %s', (_, name, msg) => {
+				const result = createBookLocationSchema.safeParse({
+					name,
+				});
 
-			expect(result.success).toBe(false);
+				expect(result.success).toBe(false);
+
+				if (!result.success) expect(result.error.issues[0].message).toBe(msg);
+			});
 		});
 	});
 });

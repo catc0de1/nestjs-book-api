@@ -17,13 +17,28 @@ describe('updateBookCategorySchema', () => {
 		});
 	});
 
-	describe('failed cases', () => {
-		it('should fail with empty data', () => {
-			const result = updateBookCategorySchema.safeParse({
-				name: '',
-			});
+	describe('fail cases', () => {
+		describe('strict validation', () => {
+			it('should throw if unknown field provided', () => {
+				const result = updateBookCategorySchema.safeParse({
+					unknownField: 'test',
+				});
 
-			expect(result.success).toBe(false);
+				expect(result.success).toBe(false);
+			});
+		});
+
+		describe('name validation', () => {
+			it('should throw if name empty', () => {
+				const result = updateBookCategorySchema.safeParse({
+					name: '',
+				});
+
+				expect(result.success).toBe(false);
+
+				const msg = 'Book Category is required';
+				if (!result.success) expect(result.error.issues[0].message).toBe(msg);
+			});
 		});
 	});
 });

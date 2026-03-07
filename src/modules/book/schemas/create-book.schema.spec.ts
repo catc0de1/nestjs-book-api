@@ -1,5 +1,7 @@
 import { createBookSchema } from './create-book.schema';
 
+import { getCurrentYear } from 'mocks/@/common/lib/getTime';
+
 describe('createBookSchema', () => {
 	const validData = {
 		title: 'Clean Code',
@@ -9,9 +11,33 @@ describe('createBookSchema', () => {
 		bookLocation: 'A-01',
 	};
 
+	it('should be defined', () => {
+		expect(createBookSchema).toBeDefined();
+	});
+
 	describe('success cases', () => {
 		it('should pass with valid data', () => {
 			const result = createBookSchema.safeParse(validData);
+
+			expect(result.success).toBe(true);
+		});
+
+		it('should pass string publisher and description', () => {
+			const result = createBookSchema.safeParse({
+				...validData,
+				publisher: 'meow',
+				description: 'how to write meow language',
+			});
+
+			expect(result.success).toBe(true);
+		});
+
+		it('should pass nullable publisher and description', () => {
+			const result = createBookSchema.safeParse({
+				...validData,
+				publisher: null,
+				description: null,
+			});
 
 			expect(result.success).toBe(true);
 		});
@@ -22,97 +48,93 @@ describe('createBookSchema', () => {
 			expect(result.publisher).toBeNull();
 			expect(result.description).toBeNull();
 		});
-
-		it('should accept nullable publisher and description', () => {
-			const result = createBookSchema.safeParse({
-				...validData,
-				publisher: null,
-				description: null,
-			});
-
-			expect(result.success).toBe(true);
-		});
 	});
 
-	describe('title validation', () => {
-		it('should fail if title empty', () => {
-			const result = createBookSchema.safeParse({
-				...validData,
-				title: '',
+	describe('fail cases', () => {
+		describe('strict validation', () => {
+			it('should throw if unknown field provided', () => {
+				const result = createBookSchema.safeParse({
+					unknownField: 'test',
+				});
+
+				expect(result.success).toBe(false);
 			});
-
-			expect(result.success).toBe(false);
-		});
-	});
-
-	describe('author validation', () => {
-		it('should fail if author empty', () => {
-			const result = createBookSchema.safeParse({
-				...validData,
-				author: '',
-			});
-
-			expect(result.success).toBe(false);
-		});
-	});
-
-	describe('year validation', () => {
-		it('should fail if year is not integer', () => {
-			const result = createBookSchema.safeParse({
-				...validData,
-				year: 2020.5,
-			});
-
-			expect(result.success).toBe(false);
 		});
 
-		it('should fail if year < 1', () => {
-			const result = createBookSchema.safeParse({
-				...validData,
-				year: 0,
-			});
+		describe('title validation', () => {
+			it('should throw if title empty', () => {
+				const result = createBookSchema.safeParse({
+					...validData,
+					title: '',
+				});
 
-			expect(result.success).toBe(false);
+				expect(result.success).toBe(false);
+
+				const msg = 'Title is required';
+				if (!result.success) expect(result.error.issues[0].message).toBe(msg);
+			});
 		});
 
-		it('should fail if year > getCurrentYear', () => {
-			const result = createBookSchema.safeParse({
-				...validData,
-				year: 2027,
+		describe('author validation', () => {
+			it('should throw if author empty', () => {
+				const result = createBookSchema.safeParse({
+					...validData,
+					author: '',
+				});
+
+				expect(result.success).toBe(false);
+
+				const msg = 'Author is required';
+				if (!result.success) expect(result.error.issues[0].message).toBe(msg);
 			});
-
-			expect(result.success).toBe(false);
-		});
-	});
-
-	describe('category validation', () => {
-		it('should fail if category empty', () => {
-			const result = createBookSchema.safeParse({
-				...validData,
-				category: '',
-			});
-
-			expect(result.success).toBe(false);
-		});
-	});
-
-	describe('bookLocation validation', () => {
-		it('should fail if empty', () => {
-			const result = createBookSchema.safeParse({
-				...validData,
-				bookLocation: '',
-			});
-
-			expect(result.success).toBe(false);
 		});
 
-		it('should fail if longer than 50 chars', () => {
-			const result = createBookSchema.safeParse({
-				...validData,
-				bookLocation: 'a'.repeat(51),
-			});
+		describe('year validation', () => {
+			it.each([
+				['is string number', '2025', null],
+				['is decimal', 2025.5, null],
+				['is less than 1', 0, 'Year invalid'],
+				['is greater than current year', 2030, `Year cannot be greater than ${getCurrentYear}`],
+			])('should throw if year %s', (_, year, msg) => {
+				const result = createBookSchema.safeParse({
+					...validData,
+					year,
+				});
 
-			expect(result.success).toBe(false);
+				expect(result.success).toBe(false);
+
+				if (msg !== null && !result.success) expect(result.error.issues[0].message).toBe(msg);
+			});
+		});
+
+		describe('category validation', () => {
+			it('should throw if category empty', () => {
+				const result = createBookSchema.safeParse({
+					...validData,
+					category: '',
+				});
+
+				expect(result.success).toBe(false);
+
+				const msg = 'Book Category is required';
+				if (!result.success) expect(result.error.issues[0].message).toBe(msg);
+			});
+		});
+
+		describe('bookLocation validation', () => {
+			it.each([
+				['empty', '', 'Book Location is required'],
+				['longer than 50 chars', 'a'.repeat(51), 'Book Location invalid'],
+			])('should throw if bookLocation is %s', (_, bookLocation, msg) => {
+				const result = createBookSchema.safeParse({
+					...validData,
+					bookLocation,
+				});
+
+				expect(result.success).toBe(false);
+
+				if (!result.success) expect(result.error.issues[0].message).toBe(msg);
+			});
 		});
 	});
 });
