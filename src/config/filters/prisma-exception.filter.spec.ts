@@ -26,8 +26,8 @@ describe('PrismaExceptionFilter', () => {
 		expect(PrismaExceptionFilter).toBeDefined();
 	});
 
-	describe('P2002 duplicat exception', () => {
-		it('should duplicate error with default engine', () => {
+	describe('P2002 duplicate exception', () => {
+		it('should handle duplicate error with default engine', () => {
 			const exception = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
 				code: 'P2002',
 				clientVersion: 'test',
