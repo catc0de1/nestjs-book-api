@@ -2,8 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HealthController } from './health.controller';
 import { HealthService } from './health.service';
 
-import type { HealthResponse } from './interfaces/response.interface';
-
 describe('HealthController', () => {
 	let controller: HealthController;
 
@@ -32,7 +30,7 @@ describe('HealthController', () => {
 		expect(controller).toBeDefined();
 	});
 
-	const mockResponse: HealthResponse = {
+	const mockResponse = {
 		status: 'ok',
 		uptime: 10,
 		timestamp: 'sat06032026',

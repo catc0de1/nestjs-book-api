@@ -32,12 +32,10 @@ describe('BookLocationController', () => {
 		expect(controller).toBeDefined();
 	});
 
-	const mockBookCategories = { id: 1, name: 'A-10' };
-
 	// get all
 	describe('getAll', () => {
 		it('should return book locations', async () => {
-			const mockResponse = [mockBookCategories];
+			const mockResponse = [{ id: 1, name: 'A-10' }];
 
 			mockBookLocationService.getAll.mockResolvedValue(mockResponse);
 

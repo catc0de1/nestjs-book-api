@@ -90,14 +90,14 @@ describe('BookController', () => {
 	// delete
 	describe('delete', () => {
 		it('should delete book and return message', async () => {
-			mockBookService.delete.mockResolvedValue({ id: 1, title: 'Book A' });
+			mockBookService.delete.mockResolvedValue({ id: 1, title: 'Meow' });
 
 			const result = await controller.delete(1);
 
 			expect(mockBookService.delete).toHaveBeenCalledWith(1);
 
 			expect(result).toEqual({
-				message: 'Book Book A deleted successfully',
+				message: 'Book Meow deleted successfully',
 			});
 		});
 	});

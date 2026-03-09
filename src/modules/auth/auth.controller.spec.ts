@@ -13,15 +13,6 @@ describe('AuthController', () => {
 		changePassword: jest.fn(),
 	};
 
-	const mockLoginDto = {
-		password: 'notAdmin123',
-	};
-
-	const mockChangePasswordDto = {
-		oldPassword: 'notAdmin123',
-		newPassword: 'newNotAdmin123',
-	};
-
 	beforeEach(async () => {
 		jest.clearAllMocks();
 
@@ -35,7 +26,9 @@ describe('AuthController', () => {
 			],
 		})
 			.overrideGuard(ThrottlerGuard)
-			.useValue({ canActive: jest.fn(() => true) })
+			.useValue({
+				canActive: jest.fn(() => true),
+			})
 			.compile();
 
 		controller = module.get<AuthController>(AuthController);
@@ -46,13 +39,16 @@ describe('AuthController', () => {
 		expect(controller).toBeDefined();
 	});
 
+	// login
 	describe('login', () => {
-		it('should return login response', async () => {
+		it('should login successfully and return token response', async () => {
+			const dto = { password: 'mockPassword' };
+
 			mockAuthService.login.mockResolvedValue('mock-token');
 
-			const result = await controller.login(mockLoginDto);
+			const result = await controller.login(dto);
 
-			expect(authService.login).toHaveBeenCalledWith(mockLoginDto);
+			expect(authService.login).toHaveBeenCalledWith(dto);
 
 			expect(result).toEqual({
 				message: 'Login successfully',
@@ -61,6 +57,7 @@ describe('AuthController', () => {
 		});
 	});
 
+	// logout
 	describe('logout', () => {
 		it('should logout successfully', () => {
 			const result = controller.logout();
@@ -73,13 +70,19 @@ describe('AuthController', () => {
 		});
 	});
 
+	// changePassword
 	describe('changePassword', () => {
 		it('should change password successfully', async () => {
+			const dto = {
+				oldPassword: 'mockOldPassword',
+				newPassword: 'mockNewPassword',
+			};
+
 			mockAuthService.changePassword.mockResolvedValue(undefined);
 
-			const result = await controller.changePassword(mockChangePasswordDto);
+			const result = await controller.changePassword(dto);
 
-			expect(authService.changePassword).toHaveBeenCalledWith(mockChangePasswordDto);
+			expect(authService.changePassword).toHaveBeenCalledWith(dto);
 
 			expect(result).toEqual({
 				message: 'Password changed successfully',
