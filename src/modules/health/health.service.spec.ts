@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ServiceUnavailableException } from '@nestjs/common';
-import { HealthService } from './health.service';
 import { PrismaService } from '@/common/prisma/prisma.service';
+import { HealthService } from './health.service';
 
 import { mockPrisma } from 'mocks/@/generated/prisma/client';
 
@@ -22,38 +22,52 @@ describe('HealthService', () => {
 		expect(service).toBeDefined();
 	});
 
-	// apiCheck
-	describe('apiCheck', () => {
-		it('should return response of api health', () => {
-			const result = service.apiCheck();
+	describe('success cases', () => {
+		// api check
+		describe('apiCheck', () => {
+			it('should return response of api health', () => {
+				const result = service.apiCheck();
 
-			expect(result).toMatchObject({
-				status: 'ok',
+				expect(result).toMatchObject({
+					status: 'ok',
+				});
+
+				expect(result.uptime).toBeDefined();
+				expect(result.timestamp).toBeDefined();
 			});
+		});
 
-			expect(result.uptime).toBeDefined();
-			expect(result.timestamp).toBeDefined();
+		// db check
+		describe('dbCheck', () => {
+			it('should return response of database health', async () => {
+				mockPrisma.$queryRaw.mockResolvedValue([{ result: 1 }]);
+
+				const result = await service.dbCheck();
+
+				expect(mockPrisma.$queryRaw).toHaveBeenCalled();
+				expect(result).toMatchObject({
+					status: 'ok',
+				});
+			});
 		});
 	});
 
-	// dbCheck
-	describe('dbCheck', () => {
-		it('should return response of database health', async () => {
-			mockPrisma.$queryRaw.mockResolvedValue([{ result: 1 }]);
+	describe('fail cases', () => {
+		// db check
+		describe('dbCheck', () => {
+			it('should throw ServiceUnavaibleException when database fails', async () => {
+				mockPrisma.$queryRaw.mockRejectedValue(new Error('DB error'));
 
-			const result = await service.dbCheck();
+				const result = service.dbCheck();
 
-			expect(result).toMatchObject({
-				status: 'ok',
+				expect(mockPrisma.$queryRaw).toHaveBeenCalled();
+				await expect(result).rejects.toThrow(ServiceUnavailableException);
+				await expect(result).rejects.toMatchObject({
+					response: {
+						message: 'Database not reachable',
+					},
+				});
 			});
-		});
-
-		it('should throw ServiceUnavaibleException when database fails', async () => {
-			mockPrisma.$queryRaw.mockRejectedValue(new Error('DB error'));
-
-			const result = service.dbCheck();
-
-			await expect(result).rejects.toThrow(ServiceUnavailableException);
 		});
 	});
 });

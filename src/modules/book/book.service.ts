@@ -99,7 +99,7 @@ export class BookService extends BaseService {
 				{
 					event: 'BOOK_CREATE',
 					action: 'CHECK_CATEGORY',
-					categoryTarget: category,
+					categoryTarget: body.category,
 					success: false,
 				},
 				'Missing Book Category on create',
@@ -113,7 +113,7 @@ export class BookService extends BaseService {
 				{
 					event: 'BOOK_CREATE',
 					action: 'CHECK_LOCATION',
-					locationTarget: bookLocation,
+					locationTarget: body.bookLocation,
 					success: false,
 				},
 				'Missing Book Location on create',
@@ -162,12 +162,12 @@ export class BookService extends BaseService {
 					{
 						event: 'BOOK_UPDATE',
 						action: 'CHECK_CATEGORY',
-						categoryTarget: category,
+						categoryTarget: body.category,
 						success: false,
 					},
 					'Missing Book Category on update',
 				);
-				throw new NotFoundException('Book category does not exist');
+				throw new NotFoundException('Book Category does not exist');
 			}
 		}
 
@@ -178,12 +178,12 @@ export class BookService extends BaseService {
 					{
 						event: 'BOOK_UPDATE',
 						action: 'CHECK_LOCATION',
-						locationTarget: bookLocation,
+						locationTarget: body.bookLocation,
 						success: false,
 					},
 					'Missing Book Location on update',
 				);
-				throw new NotFoundException('Book location does not exist');
+				throw new NotFoundException('Book Location does not exist');
 			}
 		}
 
@@ -232,8 +232,8 @@ export class BookService extends BaseService {
 
 		this.logger.info(
 			{
-				event: 'BOOK_DELETED',
-				action: 'DELETED_BOOK',
+				event: 'BOOK_DELETE',
+				action: 'DELETE_BOOK',
 				bookIdTarget: id,
 				success: true,
 			},

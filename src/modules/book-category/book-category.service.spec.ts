@@ -1,16 +1,15 @@
-import { PrismaService } from '@/common/prisma/prisma.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { BookCategoryService } from './book-category.service';
+import { BadRequestException } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
+import { PrismaService } from '@/common/prisma/prisma.service';
+import { BookCategoryService } from './book-category.service';
 
 import { mockPrisma } from 'mocks/@/generated/prisma/client';
 import { mockLogger } from '@/testing/mocks/logger';
-import { BadRequestException } from '@nestjs/common';
+import { expectHttpException } from '@/testing/helpers/expect-http-exception';
 
 describe('BookCategoryService', () => {
 	let service: BookCategoryService;
-
-	const mockBookCategories = [{ id: 1, name: 'Programming' }];
 
 	beforeEach(async () => {
 		jest.clearAllMocks();
@@ -18,8 +17,14 @@ describe('BookCategoryService', () => {
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
 				BookCategoryService,
-				{ provide: PrismaService, useValue: mockPrisma },
-				{ provide: PinoLogger, useValue: mockLogger },
+				{
+					provide: PrismaService,
+					useValue: mockPrisma,
+				},
+				{
+					provide: PinoLogger,
+					useValue: mockLogger,
+				},
 			],
 		}).compile();
 
@@ -30,82 +35,139 @@ describe('BookCategoryService', () => {
 		expect(service).toBeDefined();
 	});
 
-	// get all
-	describe('getAll', () => {
-		it('should return book categories', async () => {
-			mockPrisma.bookCategory.findMany.mockResolvedValue(mockBookCategories);
+	describe('success cases', () => {
+		// get all
+		describe('getAll', () => {
+			it('should return book categories', async () => {
+				const mockResponse = [{ id: 1, name: 'Programming' }];
 
-			const result = await service.getAll();
+				mockPrisma.bookCategory.findMany.mockResolvedValue(mockResponse);
 
-			expect(result).toEqual(mockBookCategories);
-		});
-	});
+				const result = await service.getAll();
 
-	// create
-	describe('create', () => {
-		it('should create book category successfully', async () => {
-			const createdBookCategory = { id: 1, name: 'Programming' };
-
-			mockPrisma.bookCategory.create.mockResolvedValue(createdBookCategory);
-
-			const result = await service.create({ name: 'Programming' });
-
-			expect(mockLogger.info).toHaveBeenCalled();
-			expect(result).toEqual(createdBookCategory);
-		});
-	});
-
-	// update
-	describe('update', () => {
-		it('should update book category successfully', async () => {
-			const updatedBookCategory = { id: 1, name: 'Computer' };
-
-			mockPrisma.bookCategory.update.mockResolvedValue(updatedBookCategory);
-
-			const result = await service.update(updatedBookCategory.id, { name: 'Computer' });
-
-			expect(mockLogger.info).toHaveBeenCalled();
-			expect(result).toEqual(updatedBookCategory);
-		});
-	});
-
-	// delete
-	describe('delete', () => {
-		it('should delete book category successfully', async () => {
-			const deletedBookCategory = { id: 1, name: 'Computer' };
-
-			mockPrisma.book.count.mockResolvedValue(0);
-			mockPrisma.bookCategory.delete.mockResolvedValue(deletedBookCategory);
-
-			const result = await service.delete(deletedBookCategory.id);
-
-			expect(mockLogger.info).toHaveBeenCalled();
-			expect(result).toEqual(deletedBookCategory);
-		});
-
-		it('should throw if book category associated wih books', async () => {
-			const id = 1;
-
-			mockPrisma.book.count.mockResolvedValue(1);
-
-			await expect(service.delete(id)).rejects.toThrow(BadRequestException);
-
-			expect(mockPrisma.book.count).toHaveBeenCalledWith({
-				where: { bookCategoryId: id },
+				expect(mockPrisma.bookCategory.findMany).toHaveBeenCalled();
+				expect(result).toEqual(mockResponse);
 			});
-			expect(mockLogger.warn).toHaveBeenCalled();
-			expect(mockPrisma.bookCategory.delete).not.toHaveBeenCalled();
+		});
+
+		// create
+		describe('create', () => {
+			it('should create book category successfully', async () => {
+				const createdBookCategory = { id: 1, name: 'Programming' };
+
+				mockPrisma.bookCategory.create.mockResolvedValue(createdBookCategory);
+
+				const result = await service.create({ name: 'Programming' });
+
+				expect(mockPrisma.bookCategory.create).toHaveBeenCalled();
+				expect(mockLogger.info).toHaveBeenCalledWith(
+					expect.objectContaining({
+						event: 'BOOK_CATEGORY_CREATE',
+						action: 'CREATE_BOOK_CATEGORY',
+						bookCategoryIdTarget: createdBookCategory.id,
+						success: true,
+					}),
+					'Book Category created',
+				);
+				expect(result).toEqual(createdBookCategory);
+			});
+		});
+
+		// update
+		describe('update', () => {
+			it('should update book category successfully', async () => {
+				const updatedBookCategory = { id: 1, name: 'Computer' };
+
+				mockPrisma.bookCategory.update.mockResolvedValue(updatedBookCategory);
+
+				const result = await service.update(updatedBookCategory.id, { name: 'Computer' });
+
+				expect(mockPrisma.bookCategory.update).toHaveBeenCalled();
+				expect(mockLogger.info).toHaveBeenCalledWith(
+					expect.objectContaining({
+						event: 'BOOK_CATEGORY_UPDATE',
+						action: 'UPDATE_BOOK_CATEGORY',
+						bookCategoryIdTarget: updatedBookCategory.id,
+						success: true,
+					}),
+					'Book Category updated',
+				);
+				expect(result).toEqual(updatedBookCategory);
+			});
+		});
+
+		// delete
+		describe('delete', () => {
+			it('should delete book category successfully', async () => {
+				const deletedBookCategory = { id: 1, name: 'Computer' };
+
+				mockPrisma.book.count.mockResolvedValue(0);
+				mockPrisma.bookCategory.delete.mockResolvedValue(deletedBookCategory);
+
+				const result = await service.delete(deletedBookCategory.id);
+
+				expect(mockPrisma.book.count).toHaveBeenCalledWith({
+					where: {
+						bookCategoryId: deletedBookCategory.id,
+					},
+				});
+				expect(mockPrisma.bookCategory.delete).toHaveBeenCalled();
+				expect(mockLogger.info).toHaveBeenCalledWith(
+					expect.objectContaining({
+						event: 'BOOK_CATEGORY_DELETE',
+						action: 'DELETE_BOOK_CATEGORY',
+						bookCategoryIdTarget: deletedBookCategory.id,
+						success: true,
+					}),
+					'Book Category deleted',
+				);
+				expect(result).toEqual(deletedBookCategory);
+			});
+		});
+
+		// find unique
+		describe('findUnique', () => {
+			it('should find unique book category with name', async () => {
+				mockPrisma.bookCategory.findUnique.mockResolvedValue({ id: 1, name: 'Programming' });
+
+				const result = await service.findUnique('Programming');
+
+				expect(mockPrisma.bookCategory.findUnique).toHaveBeenCalled();
+				expect(result).toEqual({ id: 1, name: 'Programming' });
+			});
 		});
 	});
 
-	// find unique
-	describe('findUnique', () => {
-		it('should find unique book category with name', async () => {
-			mockPrisma.bookCategory.findUnique.mockResolvedValue({ id: 1, name: 'Programming' });
+	describe('fail cases', () => {
+		// delete
+		describe('delete', () => {
+			it('should throw if book category associated wih books', async () => {
+				const id = 1;
 
-			const result = await service.findUnique('Programming');
+				mockPrisma.book.count.mockResolvedValue(1);
 
-			expect(result).toEqual({ id: 1, name: 'Programming' });
+				await expectHttpException(
+					service.delete(id),
+					BadRequestException,
+					'Cannot delete Book Category with associated Books',
+				);
+
+				expect(mockPrisma.book.count).toHaveBeenCalledWith({
+					where: {
+						bookCategoryId: id,
+					},
+				});
+				expect(mockLogger.warn).toHaveBeenCalledWith(
+					expect.objectContaining({
+						event: 'BOOK_CATEGORY_DELETE',
+						action: 'CHECK_BOOK_CATEGORY_ASSOCIATED',
+						bookCategoryIdTarget: id,
+						success: false,
+					}),
+					'Delete Book Category with associated Books attempt',
+				);
+				expect(mockPrisma.bookCategory.delete).not.toHaveBeenCalled();
+			});
 		});
 	});
 });

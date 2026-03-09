@@ -71,7 +71,7 @@ export class BookLocationService extends BaseService {
 				},
 				'Delete Book Location with associated Books attempt',
 			);
-			throw new BadRequestException('Cannot delete book location with associated books');
+			throw new BadRequestException('Cannot delete Book Location with associated Books');
 		}
 
 		const deletedBookLocation = await this.prisma.bookLocation.delete({

@@ -71,7 +71,7 @@ export class BookCategoryService extends BaseService {
 				},
 				'Delete Book Category with associated Books attempt',
 			);
-			throw new BadRequestException('Cannot delete book category with associated books');
+			throw new BadRequestException('Cannot delete Book Category with associated Books');
 		}
 
 		const deletedBookCategory = await this.prisma.bookCategory.delete({

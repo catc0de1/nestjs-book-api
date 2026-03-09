@@ -1,13 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
-import { BookService } from './book.service';
+import { PinoLogger } from 'nestjs-pino';
 import { PrismaService } from '@/common/prisma/prisma.service';
 import { BookCategoryService } from '@/modules/book-category/book-category.service';
 import { BookLocationService } from '@/modules/book-location/book-location.service';
-import { PinoLogger } from 'nestjs-pino';
+import { BookService } from './book.service';
 
 import { mockPrisma } from 'mocks/@/generated/prisma/client';
 import { mockLogger } from '@/testing/mocks/logger';
+import { expectHttpException } from '@/testing/helpers/expect-http-exception';
 
 describe('BookService', () => {
 	let service: BookService;
@@ -21,10 +22,22 @@ describe('BookService', () => {
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
 				BookService,
-				{ provide: PrismaService, useValue: mockPrisma },
-				{ provide: BookCategoryService, useValue: mockBookCategoryService },
-				{ provide: BookLocationService, useValue: mockBookLocationService },
-				{ provide: PinoLogger, useValue: mockLogger },
+				{
+					provide: PrismaService,
+					useValue: mockPrisma,
+				},
+				{
+					provide: BookCategoryService,
+					useValue: mockBookCategoryService,
+				},
+				{
+					provide: BookLocationService,
+					useValue: mockBookLocationService,
+				},
+				{
+					provide: PinoLogger,
+					useValue: mockLogger,
+				},
 			],
 		}).compile();
 
@@ -35,129 +48,236 @@ describe('BookService', () => {
 		expect(service).toBeDefined();
 	});
 
-	// get all
-	describe('getAll', () => {
-		it('should return paginated books', async () => {
-			const mockBooks = [{ id: 1, title: 'Test Book' }];
-			mockPrisma.book.findMany.mockResolvedValue(mockBooks);
-			mockPrisma.book.count.mockResolvedValue(1);
+	const bookDto = {
+		title: 'Book A',
+		author: 'Author A',
+		year: 2024,
+		publisher: 'Publisher A',
+		description: null,
+		category: 'Programming',
+		bookLocation: 'A-10',
+	};
 
-			const result = await service.getAll({
-				page: 1,
-				limit: 10,
-				createdAtSort: null,
-				titleSort: null,
-				authorSort: null,
-				yearSort: null,
-				publisherSort: null,
-				categorySort: null,
-				bookLocationSort: null,
-				bookCategoryFilter: null,
-				bookLocationFilter: null,
-				titleFilter: null,
+	describe('success cases', () => {
+		// get all
+		describe('getAll', () => {
+			it('should return paginated books', async () => {
+				const mockBooks = [{ id: 1, title: 'Test Book' }];
+				mockPrisma.book.findMany.mockResolvedValue(mockBooks);
+				mockPrisma.book.count.mockResolvedValue(1);
+
+				const result = await service.getAll({
+					page: 1,
+					limit: 10,
+					createdAtSort: null,
+					titleSort: null,
+					authorSort: null,
+					yearSort: null,
+					publisherSort: null,
+					categorySort: null,
+					bookLocationSort: null,
+					bookCategoryFilter: null,
+					bookLocationFilter: null,
+					titleFilter: null,
+				});
+
+				expect(mockPrisma.book.findMany).toHaveBeenCalled();
+				expect(mockPrisma.book.count).toHaveBeenCalled();
+				expect(result.meta.total).toBe(1);
+				expect(result.data).toEqual(mockBooks);
 			});
+		});
 
-			expect(mockPrisma.book.findMany).toHaveBeenCalled();
-			expect(mockPrisma.book.count).toHaveBeenCalled();
-			expect(result.meta.total).toBe(1);
-			expect(result.data).toEqual(mockBooks);
+		// create
+		describe('create', () => {
+			it('should create book successfully', async () => {
+				const dto = {
+					category: 'Programming',
+					location: 'A-10',
+				};
+
+				mockBookCategoryService.findUnique.mockResolvedValue({ name: dto.category });
+				mockBookLocationService.findUnique.mockResolvedValue({ name: dto.location });
+
+				const createdBook = { id: 1, ...bookDto };
+				mockPrisma.book.create.mockResolvedValue(createdBook);
+
+				const result = await service.create(bookDto);
+
+				expect(mockBookCategoryService.findUnique).toHaveBeenCalledWith(dto.category);
+				expect(mockBookLocationService.findUnique).toHaveBeenCalledWith(dto.location);
+				expect(mockPrisma.book.create).toHaveBeenCalled();
+				expect(mockLogger.info).toHaveBeenCalledWith(
+					expect.objectContaining({
+						event: 'BOOK_CREATE',
+						action: 'CREATE_BOOK',
+						bookIdTarget: createdBook.id,
+						success: true,
+					}),
+					'Book created',
+				);
+				expect(result).toEqual(createdBook);
+			});
+		});
+
+		// update
+		describe('update', () => {
+			it('should update book successfully', async () => {
+				const dto = {
+					title: 'Updated',
+					category: 'Computer',
+					location: 'E-10',
+				};
+
+				mockBookCategoryService.findUnique.mockResolvedValue({ name: dto.category });
+				mockBookLocationService.findUnique.mockResolvedValue({ name: dto.location });
+
+				const updatedBook = {
+					id: 1,
+					...dto,
+				};
+				mockPrisma.book.update.mockResolvedValue(updatedBook);
+
+				const result = await service.update(1, {
+					title: dto.title,
+					category: dto.category,
+					bookLocation: dto.location,
+				});
+
+				expect(mockBookCategoryService.findUnique).toHaveBeenCalledWith(dto.category);
+				expect(mockBookLocationService.findUnique).toHaveBeenCalledWith(dto.location);
+				expect(mockPrisma.book.update).toHaveBeenCalled();
+				expect(mockLogger.info).toHaveBeenCalledWith(
+					expect.objectContaining({
+						event: 'BOOK_UPDATE',
+						action: 'UPDATE_BOOK',
+						bookIdTarget: updatedBook.id,
+						success: true,
+					}),
+					'Book updated',
+				);
+				expect(result).toEqual(updatedBook);
+			});
+		});
+
+		// delete
+		describe('delete', () => {
+			it('should delete book successfully', async () => {
+				const deletedBook = { id: 1, title: 'Deleted Book' };
+				mockPrisma.book.delete.mockResolvedValue(deletedBook);
+
+				const result = await service.delete(1);
+
+				expect(mockPrisma.book.delete).toHaveBeenCalled();
+				expect(mockLogger.info).toHaveBeenCalledWith(
+					expect.objectContaining({
+						event: 'BOOK_DELETE',
+						action: 'DELETE_BOOK',
+						bookIdTarget: deletedBook.id,
+						success: true,
+					}),
+					'Book deleted',
+				);
+				expect(result).toEqual(deletedBook);
+			});
 		});
 	});
 
-	// create
-	describe('create', () => {
-		const dto = {
-			title: 'Book A',
-			author: 'Author A',
-			year: 2024,
-			publisher: 'Publisher A',
-			description: 'Desc',
-			category: 'Fiction',
-			bookLocation: 'Rack A',
-		};
+	describe('fail cases', () => {
+		// create
+		describe('create', () => {
+			it('should throw if book category not found', async () => {
+				mockBookCategoryService.findUnique.mockResolvedValue(null);
 
-		it('should create book successfully', async () => {
-			mockBookCategoryService.findUnique.mockResolvedValue({ name: 'Fiction' });
-			mockBookLocationService.findUnique.mockResolvedValue({ name: 'Rack A' });
+				await expectHttpException(
+					service.create(bookDto),
+					NotFoundException,
+					'Book Category does not exist',
+				);
 
-			const createdBook = { id: 1, ...dto };
-			mockPrisma.book.create.mockResolvedValue(createdBook);
-
-			const result = await service.create(dto);
-
-			expect(result).toEqual(createdBook);
-			expect(mockPrisma.book.create).toHaveBeenCalled();
-			expect(mockLogger.info).toHaveBeenCalled();
-		});
-
-		it('should throw if category not found', async () => {
-			mockBookCategoryService.findUnique.mockResolvedValue(null);
-
-			await expect(service.create(dto)).rejects.toThrow(NotFoundException);
-			expect(mockLogger.warn).toHaveBeenCalled();
-		});
-
-		it('should throw if location not found', async () => {
-			mockBookCategoryService.findUnique.mockResolvedValue({ name: 'Fiction' });
-			mockBookLocationService.findUnique.mockResolvedValue(null);
-
-			await expect(service.create(dto)).rejects.toThrow(NotFoundException);
-			expect(mockLogger.warn).toHaveBeenCalled();
-		});
-	});
-
-	// update
-	describe('update', () => {
-		it('should update book successfully', async () => {
-			mockBookCategoryService.findUnique.mockResolvedValue({ name: 'Fiction' });
-			mockBookLocationService.findUnique.mockResolvedValue({ name: 'Rack A' });
-
-			const updatedBook = { id: 1, title: 'Updated' };
-			mockPrisma.book.update.mockResolvedValue(updatedBook);
-
-			const result = await service.update(1, {
-				title: 'Updated',
-				category: 'Fiction',
-				bookLocation: 'Rack A',
+				expect(mockBookCategoryService.findUnique).toHaveBeenCalledWith(bookDto.category);
+				expect(mockLogger.warn).toHaveBeenCalledWith(
+					expect.objectContaining({
+						event: 'BOOK_CREATE',
+						action: 'CHECK_CATEGORY',
+						categoryTarget: bookDto.category,
+						success: false,
+					}),
+					'Missing Book Category on create',
+				);
+				expect(mockPrisma.book.create).not.toHaveBeenCalled();
 			});
 
-			expect(result).toEqual(updatedBook);
-			expect(mockPrisma.book.update).toHaveBeenCalled();
-			expect(mockLogger.info).toHaveBeenCalled();
-		});
+			it('should throw if book location not found', async () => {
+				mockBookCategoryService.findUnique.mockResolvedValue({ name: bookDto.category });
+				mockBookLocationService.findUnique.mockResolvedValue(null);
 
-		it('should throw if update category not found', async () => {
-			mockBookCategoryService.findUnique.mockResolvedValue(null);
+				await expectHttpException(
+					service.create(bookDto),
+					NotFoundException,
+					'Book Location does not exist',
+				);
 
-			await expect(service.update(1, { category: 'Unknown' })).rejects.toThrow(NotFoundException);
-
-			expect(mockLogger.warn).toHaveBeenCalled();
-		});
-
-		it('should throw if update location not found', async () => {
-			mockBookLocationService.findUnique.mockResolvedValue(null);
-
-			await expect(service.update(1, { bookLocation: 'Unknown' })).rejects.toThrow(
-				NotFoundException,
-			);
-
-			expect(mockLogger.warn).toHaveBeenCalled();
-		});
-	});
-
-	// delete
-	describe('delete', () => {
-		it('should delete book successfully', async () => {
-			const deletedBook = { id: 1, title: 'Deleted' };
-			mockPrisma.book.delete.mockResolvedValue(deletedBook);
-
-			const result = await service.delete(1);
-
-			expect(result).toEqual(deletedBook);
-			expect(mockPrisma.book.delete).toHaveBeenCalledWith({
-				where: { id: 1 },
+				expect(mockBookCategoryService.findUnique).toHaveBeenCalledWith(bookDto.category);
+				expect(mockBookLocationService.findUnique).toHaveBeenCalledWith(bookDto.bookLocation);
+				expect(mockLogger.warn).toHaveBeenCalledWith(
+					expect.objectContaining({
+						event: 'BOOK_CREATE',
+						action: 'CHECK_LOCATION',
+						locationTarget: bookDto.bookLocation,
+						success: false,
+					}),
+					'Missing Book Location on create',
+				);
+				expect(mockPrisma.book.create).not.toHaveBeenCalled();
 			});
-			expect(mockLogger.info).toHaveBeenCalled();
+		});
+
+		// update
+		describe('update', () => {
+			it('should throw if update book category not found', async () => {
+				mockBookCategoryService.findUnique.mockResolvedValue(null);
+
+				await expectHttpException(
+					service.update(1, { category: bookDto.category }),
+					NotFoundException,
+					'Book Category does not exist',
+				);
+
+				expect(mockBookCategoryService.findUnique).toHaveBeenCalledWith(bookDto.category);
+				expect(mockLogger.warn).toHaveBeenCalledWith(
+					expect.objectContaining({
+						event: 'BOOK_UPDATE',
+						action: 'CHECK_CATEGORY',
+						categoryTarget: bookDto.category,
+						success: false,
+					}),
+					'Missing Book Category on update',
+				);
+				expect(mockPrisma.book.update).not.toHaveBeenCalled();
+			});
+
+			it('should throw if update book location not found', async () => {
+				mockBookLocationService.findUnique.mockResolvedValue(null);
+
+				await expectHttpException(
+					service.update(1, { bookLocation: bookDto.bookLocation }),
+					NotFoundException,
+					'Book Location does not exist',
+				);
+
+				expect(mockBookLocationService.findUnique).toHaveBeenCalledWith(bookDto.bookLocation);
+				expect(mockLogger.warn).toHaveBeenCalledWith(
+					expect.objectContaining({
+						event: 'BOOK_UPDATE',
+						action: 'CHECK_LOCATION',
+						locationTarget: bookDto.bookLocation,
+						success: false,
+					}),
+					'Missing Book Location on update',
+				);
+				expect(mockPrisma.book.update).not.toHaveBeenCalled();
+			});
 		});
 	});
 });
