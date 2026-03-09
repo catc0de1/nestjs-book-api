@@ -9,7 +9,7 @@ import {
 	Post,
 	Query,
 } from '@nestjs/common';
-import { ZodValidationPipe } from '@/common/pipes/zod.pipe';
+import { ZodValidationPipe } from '@/common/pipes/zod-validation.pipe';
 import { BookService } from './book.service';
 import { createBookSchema } from './schemas/create-book.schema';
 import { getAllQueryBookSchema } from './schemas/get-all-query-book.schema';

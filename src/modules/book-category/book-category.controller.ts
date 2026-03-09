@@ -9,7 +9,7 @@ import {
 	Put,
 	UsePipes,
 } from '@nestjs/common';
-import { ZodValidationPipe } from '@/common/pipes/zod.pipe';
+import { ZodValidationPipe } from '@/common/pipes/zod-validation.pipe';
 import { BookCategoryService } from './book-category.service';
 import { createBookCategorySchema } from './schemas/create-book-category.schema';
 import { updateBookCategorySchema } from './schemas/update-book-category.schema';

@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { ZodValidationPipe } from '@/common/pipes/zod.pipe';
+import { ZodValidationPipe } from '@/common/pipes/zod-validation.pipe';
 import { Public } from './decorators/public.decorator';
 import { AuthService } from './auth.service';
 import { changePasswordSchema } from './schemas/change-password.schema';
