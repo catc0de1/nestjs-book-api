@@ -61,30 +61,126 @@ describe('BookService', () => {
 	describe('success cases', () => {
 		// get all
 		describe('getAll', () => {
-			it('should return paginated books', async () => {
-				const mockBooks = [{ id: 1, title: 'Test Book' }];
+			const mockBooks = [
+				{
+					id: 1,
+					title: 'Test Book',
+				},
+			];
+
+			const baseQuery = {
+				page: 1,
+				limit: 10,
+				createdAtSort: null,
+				titleSort: null,
+				authorSort: null,
+				yearSort: null,
+				publisherSort: null,
+				categorySort: null,
+				bookLocationSort: null,
+				bookCategoryFilter: null,
+				bookLocationFilter: null,
+				titleFilter: null,
+			};
+
+			it('should return paginated books with empty query param', async () => {
 				mockPrisma.book.findMany.mockResolvedValue(mockBooks);
 				mockPrisma.book.count.mockResolvedValue(1);
 
-				const result = await service.getAll({
-					page: 1,
-					limit: 10,
-					createdAtSort: null,
-					titleSort: null,
-					authorSort: null,
-					yearSort: null,
-					publisherSort: null,
-					categorySort: null,
-					bookLocationSort: null,
-					bookCategoryFilter: null,
-					bookLocationFilter: null,
-					titleFilter: null,
-				});
+				const result = await service.getAll();
 
 				expect(mockPrisma.book.findMany).toHaveBeenCalled();
 				expect(mockPrisma.book.count).toHaveBeenCalled();
 				expect(result.meta.total).toBe(1);
+				expect(result.meta.page).toBe(1);
+				expect(result.meta.limit).toBe(10);
+				expect(result.meta.totalPages).toBe(1);
 				expect(result.data).toEqual(mockBooks);
+			});
+
+			it('should calculate totalPages correctly', async () => {
+				mockPrisma.book.findMany.mockResolvedValue(mockBooks);
+				mockPrisma.book.count.mockResolvedValue(21);
+
+				const result = await service.getAll(baseQuery);
+
+				expect(result.meta.totalPages).toBe(3);
+			});
+
+			describe('sorting', () => {
+				it.each([
+					['createdAtSort', { createdAt: 'asc' }],
+					['titleSort', { title: 'asc' }],
+					['authorSort', { author: 'asc' }],
+					['yearSort', { year: 'asc' }],
+					['publisherSort', { publisher: 'asc' }],
+					['categorySort', { bookCategory: { name: 'asc' } }],
+					['bookLocationSort', { bookLocation: { name: 'asc' } }],
+				])('should return paginated books with sort by %s', async (field, expected) => {
+					mockPrisma.book.findMany.mockResolvedValue(mockBooks);
+					mockPrisma.book.count.mockResolvedValue(1);
+
+					const result = await service.getAll({
+						...baseQuery,
+						[field]: 'asc',
+					});
+
+					expect(mockPrisma.book.findMany).toHaveBeenCalledWith(
+						expect.objectContaining({
+							orderBy: [expected],
+						}),
+					);
+					expect(mockPrisma.book.count).toHaveBeenCalled();
+					expect(result.meta.total).toBe(1);
+					expect(result.data).toEqual(mockBooks);
+				});
+			});
+
+			describe('filtering', () => {
+				it.each([
+					[
+						'titleFilter',
+						'C',
+						{
+							title: { contains: 'C', mode: 'insensitive' },
+						},
+					],
+					[
+						'bookCategoryFilter',
+						'Pro',
+						{
+							bookCategory: {
+								name: { contains: 'Pro', mode: 'insensitive' },
+							},
+						},
+					],
+					[
+						'bookLocationFilter',
+						'A',
+						{
+							bookLocation: {
+								name: { contains: 'A', mode: 'insensitive' },
+							},
+						},
+					],
+				])('should return paginated books with filter by %s', async (field, value, expectedWhere) => {
+					mockPrisma.book.findMany.mockResolvedValue(mockBooks);
+					mockPrisma.book.count.mockResolvedValue(1);
+
+					const result = await service.getAll({
+						...baseQuery,
+						[field]: value,
+					});
+
+					expect(mockPrisma.book.findMany).toHaveBeenCalledWith(
+						expect.objectContaining({
+							where: expectedWhere,
+						}),
+					);
+					expect(mockPrisma.book.count).toHaveBeenCalled();
+					expect(result.meta.total).toBe(1);
+					expect(result.data).toEqual(mockBooks);
+				});
 			});
 		});
 
