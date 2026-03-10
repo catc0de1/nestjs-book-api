@@ -56,6 +56,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Prisma setup
+        run: npx prisma generate
+        env:
+          DATABASE_URL: "postgresql://test:test@localhost:5432/test"
+
       - name: Type check
         run: pnpm check
 
