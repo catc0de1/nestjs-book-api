@@ -10,7 +10,7 @@ import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 async function bootstrap() {
 	const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
-		bufferLogs: 'true',
+		bufferLogs: true,
 	});
 
 	const configService = app.get(ConfigService);
