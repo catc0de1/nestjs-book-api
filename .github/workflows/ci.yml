@@ -36,6 +36,8 @@ jobs:
 
       - name: Setup Prisma
         run: npx prisma generate
+        env:
+          DATABASE_URL: "postgresql://test:test@localhost:5432/test"
 
       - name: Type check
         run: pnpm check
