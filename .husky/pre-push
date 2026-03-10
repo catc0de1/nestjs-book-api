@@ -1,2 +1,2 @@
 pnpm check
-pnpm test -- --runInBand
+pnpm test:band
