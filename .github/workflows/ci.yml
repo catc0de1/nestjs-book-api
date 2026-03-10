@@ -5,39 +5,121 @@ on:
     branches:
       - main
       - feature/*
-      - bugfix/*
-      - hotfix/*
-      - release/*
-      - testing
+      - release/v*
+      - testing/**
 
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Pnpm setup
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Node setup
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install --frozen-lockfile
+
+      - name: Biome lint
+        run: pnpm biome:lint
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pnpm setup
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Node setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prisma setup
+        run: npx prisma generate
+        env:
+          DATABASE_URL: "postgresql://test:test@localhost:5432/test"
 
       - name: Type check
-        run: npm run check
+        run: pnpm check
 
-      - name: Lint
-        run: npm run biome:lint
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pnpm setup
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Node setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prisma setup
+        run: npx prisma generate
+        env:
+          DATABASE_URL: "postgresql://test:test@localhost:5432/test"
 
       - name: Run unit tests
-        run: npm run test -- --runInBand
+        run: pnpm test -- --runInBand
+
+  build:
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - typecheck
+      - test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pnpm setup
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Node setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prisma setup
+        run: npx prisma generate
+        env:
+          DATABASE_URL: "postgresql://test:test@localhost:5432/test"
 
       - name: Build project
-        run: npm run build
+        run: pnpm build

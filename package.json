@@ -6,7 +6,8 @@
 	"private": true,
 	"license": "MIT",
 	"scripts": {
-		"build": "nest build --type-check",
+		"build": "nest build",
+		"build:check": "nest build --type-check",
 		"start": "nest start",
 		"start:dev": "nest start --watch",
 		"start:debug": "nest start --debug --watch",
