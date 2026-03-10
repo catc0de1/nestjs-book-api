@@ -27,7 +27,7 @@ describe('HealthController', () => {
 	});
 
 	it('should be defined', () => {
-		expect(controller).not.toBeDefined();
+		expect(controller).toBeDefined();
 	});
 
 	const mockResponse = {
