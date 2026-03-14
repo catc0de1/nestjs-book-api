@@ -2,9 +2,8 @@ import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { CoreModule } from '@/core/core.module';
 import { AuthModule } from '@/modules/auth/auth.module';
-import { EnvModule } from '@/core/env.module';
-import { LoggerModule } from '@/core/logger.module';
 import { throttlerConstant } from '@/modules/auth/throttler/throttler.constant';
 import { THROTTLER_ERROR_MSG } from '@/modules/auth/throttler/error-msg.constant';
 
@@ -16,8 +15,7 @@ describe('Throttler (e2e)', () => {
 	beforeAll(async () => {
 		const moduleFixture: TestingModule = await Test.createTestingModule({
 			imports: [
-				EnvModule,
-				LoggerModule,
+				CoreModule,
 
 				ThrottlerModule.forRoot({
 					throttlers: [

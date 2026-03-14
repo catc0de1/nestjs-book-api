@@ -1,17 +1,17 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import request from 'supertest';
+import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import request from 'supertest';
+import { CoreModule } from '@/core/core.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { PrismaService } from '@/common/prisma/prisma.service';
-import { LoggerModule } from '@/core/logger.module';
-import { EnvModule } from '@/core/env.module';
 import { adminSeeder } from '#/database/seeds/admin.seeder';
 import { trucateDatabase } from '#/database/truncate';
 import { ADMIN_PASSWORD } from '#/database/constants/admin.constant';
 import { login } from '#/helper/auth.helper';
 
 import type { App } from 'supertest/types';
+import type { TestingModule } from '@nestjs/testing';
 
 describe('AuthModule (e2e)', () => {
 	let app: INestApplication<App>;
@@ -19,7 +19,7 @@ describe('AuthModule (e2e)', () => {
 
 	beforeAll(async () => {
 		const moduleFixture: TestingModule = await Test.createTestingModule({
-			imports: [AuthModule, LoggerModule, EnvModule],
+			imports: [CoreModule, AuthModule],
 		})
 			.overrideGuard(ThrottlerGuard)
 			.useValue({
