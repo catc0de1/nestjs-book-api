@@ -35,7 +35,7 @@ jobs:
         run: pnpm docker:test:up
 
       - name: Prisma init
-        run: pnpm cross-env NODE_ENV=test prisma init
+        run: pnpm prisma:init:test
 
       - name: Prisma migration
         run: pnpm prisma:migration:test
