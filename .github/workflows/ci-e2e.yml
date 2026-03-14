@@ -38,7 +38,7 @@ jobs:
         run: pnpm prisma:init:test
 
       - name: Prisma migration
-        run: pnpm prisma:migration:test
+        run: pnpm prisma:migrate:test
 
       - name: Run e2e test
         run: pnpm test:e2e
