@@ -8,22 +8,37 @@
 	"scripts": {
 		"build": "nest build",
 		"build:check": "nest build --type-check",
-		"start": "nest start",
-		"start:dev": "nest start --watch",
-		"start:debug": "nest start --debug --watch",
-		"start:prod": "node dist/main",
+
+		"start": "cross-env NODE_ENV=development nest start",
+		"start:dev": "cross-env NODE_ENV=development nest start --watch",
+		"start:debug": "cross-env NODE_ENV=development nest start --debug --watch",
+		"start:prod": "cross-env NODE_ENV=production node dist/main",
+
 		"check": "tsc --noEmit",
 		"check:watch": "tsc --noEmit --watch",
+
 		"biome:lint": "biome lint",
 		"biome:format": "biome format",
 		"biome:check": "biome check",
 		"biome:write": "biome check --write",
-		"test": "jest",
-		"test:band": "jest --runInBand",
-		"test:watch": "jest --watch",
-		"test:cov": "jest --coverage",
+
+		"test": "cross-env NODE_ENV=test jest",
+		"test:band": "cross-env NODE_ENV=test jest --runInBand",
+		"test:watch": "cross-env NODE_ENV=test jest --watch",
+		"test:cov": "cross-env NODE_ENV=test jest --coverage",
 		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-		"test:e2e": "jest --config ./test/jest-e2e.json",
+		"test:e2e": "cross-env NODE_ENV=test jest --config ./test/jest-e2e.json --runInBand",
+
+		"prisma:init": "prisma generate",
+		"prisma:migrate:dev": "cross-env NODE_ENV=development prisma migrate dev",
+		"prisma:migrate:prod": "cross-env NODE_ENV=production prisma migrate deploy",
+		"prisma:migrate:test": "cross-env NODE_ENV=test prisma migrate deploy",
+
+		"docker:test:up": "docker compose --env-file .env.test -f docker-compose.test.yml up -d",
+		"docker:test:down": "docker compose --env-file .env.test -f docker-compose.test.yml down -v",
+		"docker:test:start": "docker compose --env-file .env.test -f docker-compose.test.yml start",
+		"docker:test:stop": "docker compose --env-file .env.test -f docker-compose.test.yml stop",
+
 		"prepare": "husky"
 	},
 	"dependencies": {
@@ -57,6 +72,7 @@
 		"@types/jest": "^30.0.0",
 		"@types/node": "^22.10.7",
 		"@types/supertest": "^6.0.2",
+		"cross-env": "^10.1.0",
 		"globals": "^16.0.0",
 		"husky": "^9.1.7",
 		"jest": "^30.0.0",
