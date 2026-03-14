@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { throttlerConstant } from './throttler.constant';
+import { THROTTLER_ERROR_MSG } from './error-msg.constant';
 
 @Module({
 	imports: [
@@ -13,7 +14,7 @@ import { throttlerConstant } from './throttler.constant';
 				},
 			],
 
-			errorMessage: 'Limit reached, try again later',
+			errorMessage: THROTTLER_ERROR_MSG,
 		}),
 	],
 })

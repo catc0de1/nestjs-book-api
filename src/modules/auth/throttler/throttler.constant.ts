@@ -4,4 +4,10 @@ export const throttlerConstant = {
 		ttl: 300_000,
 		limit: 2,
 	},
+
+	test: {
+		name: 'test',
+		ttl: 60,
+		limit: 2,
+	},
 };
