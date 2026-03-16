@@ -13,6 +13,19 @@ import { login } from '#/helper/auth.helper';
 import type { App } from 'supertest/types';
 import type { TestingModule } from '@nestjs/testing';
 
+async function newPasswordCheck(
+	password: string,
+	app: INestApplication,
+	status: number,
+): Promise<void> {
+	await request(app.getHttpServer())
+		.post('/api/auth/login')
+		.send({
+			password,
+		})
+		.expect(status);
+}
+
 describe('AuthModule (e2e)', () => {
 	let app: INestApplication<App>;
 	let prisma: PrismaService;
@@ -48,9 +61,11 @@ describe('AuthModule (e2e)', () => {
 
 	describe('success cases', () => {
 		describe('POST /api/auth/login', () => {
+			const route = '/api/auth/login';
+
 			it('should login successfully', async () => {
 				const res = await request(app.getHttpServer())
-					.post('/api/auth/login')
+					.post(route)
 					.send({
 						password: ADMIN_PASSWORD,
 					})
@@ -62,30 +77,42 @@ describe('AuthModule (e2e)', () => {
 		});
 
 		describe('POST /api/auth/change-password', () => {
+			const route = '/api/auth/change-password';
+
 			it('should change password successfully', async () => {
 				const token = await login(app);
+				const newPassword = 'newPassword123';
 
-				await request(app.getHttpServer())
-					.post('/api/auth/change-password')
+				const res = await request(app.getHttpServer())
+					.post(route)
 					.set('Authorization', `Bearer ${token}`)
 					.send({
 						oldPassword: ADMIN_PASSWORD,
-						newPassword: 'newPassword123',
+						newPassword,
 					})
 					.expect(201);
+
+				expect(res.body.message).toBe('Password changed successfully');
 
 				const admin = await prisma.admin.findFirst();
 
 				expect(admin).toBeDefined();
+
+				await Promise.all([
+					newPasswordCheck(newPassword, app, 201),
+					newPasswordCheck(ADMIN_PASSWORD, app, 401),
+				]);
 			});
 		});
 
 		describe('POST /api/auth/logout', () => {
+			const route = '/api/auth/logout';
+
 			it('should logout successfully', async () => {
 				const token = await login(app);
 
 				const res = await request(app.getHttpServer())
-					.post('/api/auth/logout')
+					.post(route)
 					.set('Authorization', `Bearer ${token}`)
 					.expect(201);
 
@@ -99,21 +126,25 @@ describe('AuthModule (e2e)', () => {
 			const route = '/api/auth/login';
 
 			it('should throw if password incorrect', async () => {
-				await request(app.getHttpServer())
+				const res = await request(app.getHttpServer())
 					.post(route)
 					.send({
 						password: 'wrong-password',
 					})
 					.expect(401);
+
+				expect(res.body.payload).not.toBeDefined();
 			});
 
 			it('should throw if validation fail', async () => {
-				await request(app.getHttpServer())
+				const res = await request(app.getHttpServer())
 					.post(route)
 					.send({
 						password: '',
 					})
 					.expect(400);
+
+				expect(res.body.payload).not.toBeDefined();
 			});
 		});
 
@@ -122,49 +153,57 @@ describe('AuthModule (e2e)', () => {
 
 			it('should throw if old password incorrect', async () => {
 				const token = await login(app);
+				const newPassword = 'newPassword123';
 
 				await request(app.getHttpServer())
 					.post(route)
 					.set('Authorization', `Bearer ${token}`)
 					.send({
 						oldPassword: 'wrongPassword',
-						newPassword: 'newPassword123',
+						newPassword,
 					})
 					.expect(401);
+
+				await Promise.all([
+					newPasswordCheck(newPassword, app, 401),
+					newPasswordCheck(ADMIN_PASSWORD, app, 201),
+				]);
 			});
 
-			it('should throw if bearer authorization not set', async () => {
+			it('should throw if not authenticated', async () => {
+				const newPassword = 'newPassword123';
+
 				await request(app.getHttpServer())
 					.post(route)
 					.send({
 						oldPassword: ADMIN_PASSWORD,
-						newPassword: 'newPassword123',
+						newPassword,
 					})
 					.expect(401);
-			});
 
-			it('should throw if bearer token incorrect', async () => {
-				await request(app.getHttpServer())
-					.post(route)
-					.set('Authorization', `Bearer wrongtoken`)
-					.send({
-						oldPassword: ADMIN_PASSWORD,
-						newPassword: 'newPassword123',
-					})
-					.expect(401);
+				await Promise.all([
+					newPasswordCheck(newPassword, app, 401),
+					newPasswordCheck(ADMIN_PASSWORD, app, 201),
+				]);
 			});
 
 			it('should throw if validation fail', async () => {
 				const token = await login(app);
+				const newPassword = 'password';
 
 				await request(app.getHttpServer())
 					.post(route)
 					.set('Authorization', `Bearer ${token}`)
 					.send({
 						oldPassword: ADMIN_PASSWORD,
-						newPassword: 'password',
+						newPassword,
 					})
 					.expect(400);
+
+				await Promise.all([
+					newPasswordCheck(newPassword, app, 401),
+					newPasswordCheck(ADMIN_PASSWORD, app, 201),
+				]);
 			});
 		});
 	});
