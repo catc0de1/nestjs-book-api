@@ -4,7 +4,7 @@ import { ADMIN_PASSWORD } from '#/database/constants/admin.constant';
 
 export async function login(app: INestApplication): Promise<string> {
 	const res = await request(app.getHttpServer())
-		.post('/auth/login')
+		.post('/api/auth/login')
 		.send({ password: ADMIN_PASSWORD });
 
 	const token = res.body.payload;

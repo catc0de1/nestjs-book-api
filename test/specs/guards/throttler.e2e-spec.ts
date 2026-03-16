@@ -33,6 +33,9 @@ describe('Throttler (e2e)', () => {
 		}).compile();
 
 		app = moduleFixture.createNestApplication();
+
+		app.setGlobalPrefix('api');
+
 		await app.init();
 	});
 
@@ -42,11 +45,13 @@ describe('Throttler (e2e)', () => {
 
 	it('should throw 429 after limit reached', async () => {
 		const server = app.getHttpServer();
+		const route = '/api/auth/login';
+		const body = {
+			password: 'wrong-password',
+		};
 
-		const password = 'wrong-password';
-
-		await request(server).post('/auth/login').send({ password }).expect(401);
-		await request(server).post('/auth/login').send({ password }).expect(401);
-		await request(server).post('/auth/login').send({ password }).expect(429);
+		await request(server).post(route).send(body).expect(401);
+		await request(server).post(route).send(body).expect(401);
+		await request(server).post(route).send(body).expect(429);
 	});
 });

@@ -31,6 +31,8 @@ describe('AuthModule (e2e)', () => {
 
 		prisma = moduleFixture.get(PrismaService);
 
+		app.setGlobalPrefix('api');
+
 		await app.init();
 	});
 
@@ -45,10 +47,10 @@ describe('AuthModule (e2e)', () => {
 	});
 
 	describe('success cases', () => {
-		describe('POST /auth/login', () => {
+		describe('POST /api/auth/login', () => {
 			it('should login successfully', async () => {
 				const res = await request(app.getHttpServer())
-					.post('/auth/login')
+					.post('/api/auth/login')
 					.send({
 						password: ADMIN_PASSWORD,
 					})
@@ -59,12 +61,12 @@ describe('AuthModule (e2e)', () => {
 			});
 		});
 
-		describe('POST /auth/change-password', () => {
+		describe('POST /api/auth/change-password', () => {
 			it('should change password successfully', async () => {
 				const token = await login(app);
 
 				await request(app.getHttpServer())
-					.post('/auth/change-password')
+					.post('/api/auth/change-password')
 					.set('Authorization', `Bearer ${token}`)
 					.send({
 						oldPassword: ADMIN_PASSWORD,
@@ -78,12 +80,12 @@ describe('AuthModule (e2e)', () => {
 			});
 		});
 
-		describe('POST /auth/logout', () => {
+		describe('POST /api/auth/logout', () => {
 			it('should logout successfully', async () => {
 				const token = await login(app);
 
 				const res = await request(app.getHttpServer())
-					.post('/auth/logout')
+					.post('/api/auth/logout')
 					.set('Authorization', `Bearer ${token}`)
 					.expect(201);
 
@@ -93,29 +95,76 @@ describe('AuthModule (e2e)', () => {
 	});
 
 	describe('fail cases', () => {
-		describe('POST /auth/login', () => {
+		describe('POST /api/auth/login', () => {
+			const route = '/api/auth/login';
+
 			it('should throw if password incorrect', async () => {
 				await request(app.getHttpServer())
-					.post('/auth/login')
+					.post(route)
 					.send({
 						password: 'wrong-password',
 					})
 					.expect(401);
 			});
+
+			it('should throw if validation fail', async () => {
+				await request(app.getHttpServer())
+					.post(route)
+					.send({
+						password: '',
+					})
+					.expect(400);
+			});
 		});
 
-		describe('POST /auth/change-password', () => {
+		describe('POST /api/auth/change-password', () => {
+			const route = '/api/auth/change-password';
+
 			it('should throw if old password incorrect', async () => {
 				const token = await login(app);
 
 				await request(app.getHttpServer())
-					.post('/auth/change-password')
+					.post(route)
 					.set('Authorization', `Bearer ${token}`)
 					.send({
 						oldPassword: 'wrongPassword',
 						newPassword: 'newPassword123',
 					})
 					.expect(401);
+			});
+
+			it('should throw if bearer authorization not set', async () => {
+				await request(app.getHttpServer())
+					.post(route)
+					.send({
+						oldPassword: ADMIN_PASSWORD,
+						newPassword: 'newPassword123',
+					})
+					.expect(401);
+			});
+
+			it('should throw if bearer token incorrect', async () => {
+				await request(app.getHttpServer())
+					.post(route)
+					.set('Authorization', `Bearer wrongtoken`)
+					.send({
+						oldPassword: ADMIN_PASSWORD,
+						newPassword: 'newPassword123',
+					})
+					.expect(401);
+			});
+
+			it('should throw if validation fail', async () => {
+				const token = await login(app);
+
+				await request(app.getHttpServer())
+					.post(route)
+					.set('Authorization', `Bearer ${token}`)
+					.send({
+						oldPassword: ADMIN_PASSWORD,
+						newPassword: 'password',
+					})
+					.expect(400);
 			});
 		});
 	});
