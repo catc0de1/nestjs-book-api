@@ -1,0 +1,43 @@
+name: ci-e2e
+
+on:
+  push:
+    branches:
+      - testing/**
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  e2e-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pnpm setup
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Node setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create docker container
+        run: pnpm docker:test:up
+
+      - name: Prisma init
+        run: pnpm prisma:init:test
+
+      - name: Prisma migration
+        run: pnpm prisma:migrate:test
+
+      - name: Run e2e test
+        run: pnpm test:e2e
