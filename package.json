@@ -1,9 +1,9 @@
 {
 	"name": "book-api",
 	"version": "0.0.1",
-	"description": "",
+	"description": "API for heavy search book library",
 	"author": "catc0de1",
-	"private": true,
+	"private": false,
 	"license": "MIT",
 	"scripts": {
 		"build": "nest build",
