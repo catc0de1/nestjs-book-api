@@ -40,7 +40,13 @@
 		"docker:test:down": "docker compose --env-file .env.test -f docker-compose.test.yml down -v",
 		"docker:test:start": "docker compose --env-file .env.test -f docker-compose.test.yml start",
 		"docker:test:stop": "docker compose --env-file .env.test -f docker-compose.test.yml stop",
-		"prepare": "husky"
+		"prepare": "husky",
+		"bench": "autocannon",
+		"bench:simple": "ts-node -r tsconfig-paths/register bench/simple.bench",
+		"bench:search": "ts-node -r tsconfig-paths/register bench/search.bench",
+		"bench:filter": "ts-node -r tsconfig-paths/register bench/filter.bench",
+		"bench:pagination": "ts-node -r tsconfig-paths/register bench/pagination.bench",
+		"bench:heavy": "ts-node -r tsconfig-paths/register bench/heavy.bench"
 	},
 	"dependencies": {
 		"@fastify/helmet": "^13.0.2",
@@ -68,10 +74,12 @@
 		"@swc/cli": "^0.8.0",
 		"@swc/core": "^1.15.11",
 		"@swc/jest": "^0.2.39",
+		"@types/autocannon": "^7.12.7",
 		"@types/bcrypt": "^6.0.0",
 		"@types/jest": "^30.0.0",
 		"@types/node": "^22.10.7",
 		"@types/supertest": "^6.0.2",
+		"autocannon": "^8.0.0",
 		"cross-env": "^10.1.0",
 		"dotenv": "^17.3.1",
 		"dotenv-cli": "^11.0.0",
