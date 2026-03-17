@@ -93,7 +93,7 @@ describe('BookService', () => {
 				expect(mockPrisma.book.count).toHaveBeenCalled();
 				expect(result.meta.total).toBe(1);
 				expect(result.meta.page).toBe(1);
-				expect(result.meta.limit).toBe(10);
+				expect(result.meta.limit).toBe(20);
 				expect(result.meta.totalPages).toBe(1);
 				expect(result.data).toEqual(mockBooks);
 			});
