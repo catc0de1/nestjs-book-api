@@ -64,12 +64,12 @@ export class SearchListener extends BaseService {
 			this.logger.error(
 				{
 					event: 'BOOK_CATEGORY_UPDATE',
-					action: 'UPDATE_BOOKS_INDEX_BY_CATEGORY',
+					action: 'UPDATE_BOOK_INDEXS_BY_CATEGORY',
 					bookCategoryIdTarget: payload.bookCategory.id,
 					success: false,
 					error: err.message,
 				},
-				'Failed to update books index by category after update',
+				'Failed to update book indexs by category after category update',
 			);
 		}
 	}
@@ -82,12 +82,12 @@ export class SearchListener extends BaseService {
 			this.logger.error(
 				{
 					event: 'BOOK_LOCATION_UPDATE',
-					action: 'UPDATE_BOOKS_INDEX_BY_LOCATION',
+					action: 'UPDATE_BOOK_INDEXS_BY_LOCATION',
 					bookLocationIdTarget: payload.bookLocation.id,
 					success: false,
 					error: err.message,
 				},
-				'Failed to update books index by location after update',
+				'Failed to update book indexs by location after location update',
 			);
 		}
 	}

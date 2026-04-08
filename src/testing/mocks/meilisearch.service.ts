@@ -1,10 +1,14 @@
-export const mockMeilisearchClient = {
-	health: jest.fn(),
+export const mockMeiliIndex = {
+	updateSettings: jest.fn(),
+	addDocuments: jest.fn(),
+	updateDocuments: jest.fn(),
+	deleteDocument: jest.fn(),
 };
 
 export const mockMeilisearchService = {
-	onModuleInit: jest.fn(),
+	index: jest.fn().mockReturnValue(mockMeiliIndex),
+	getClient: jest.fn().mockReturnValue({
+		createIndex: jest.fn().mockResolvedValue({}),
+	}),
 	getStats: jest.fn(),
-
-	getClient: jest.fn().mockResolvedValue(mockMeilisearchClient),
 };
