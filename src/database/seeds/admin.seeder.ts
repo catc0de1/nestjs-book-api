@@ -14,9 +14,9 @@ export class AdminSeeder {
 	) {}
 
 	async run(): Promise<void> {
-		const existing = await this.prisma.admin.findFirst();
+		const count = await this.prisma.admin.count();
 
-		if (existing) {
+		if (count > 0) {
 			this.logger.log('Admin already exist, skipping seed');
 			return;
 		}
