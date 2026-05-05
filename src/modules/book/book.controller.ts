@@ -14,10 +14,12 @@ import { BookService } from './book.service';
 import { createBookSchema } from './schemas/create-book.schema';
 import { getAllQueryBookSchema } from './schemas/get-all-query-book.schema';
 import { updateBookSchema } from './schemas/update-book.schema';
+import { searchQueryBookSchema } from './schemas/search-query-book.schema';
 
 import type { CreateBookDto } from './schemas/create-book.schema';
 import type { GetAllQueryBookDto } from './schemas/get-all-query-book.schema';
 import type { UpdateBookDto } from './schemas/update-book.schema';
+import type { SearchQueryBookDto } from './schemas/search-query-book.schema';
 import type {
 	CreatedResponse,
 	DeletedResponse,
@@ -46,6 +48,11 @@ export class BookController {
 			message: 'Book created successfully',
 			data: book,
 		};
+	}
+
+	@Get('search')
+	async search(@Query(new ZodValidationPipe(searchQueryBookSchema)) query: SearchQueryBookDto) {
+		return this.bookService.search(query);
 	}
 
 	@Patch(':id')

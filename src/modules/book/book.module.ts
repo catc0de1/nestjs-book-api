@@ -4,9 +4,10 @@ import { BookController } from './book.controller';
 import { BookService } from './book.service';
 import { BookCategoryModule } from '@/modules/book-category/book-category.module';
 import { BookLocationModule } from '@/modules/book-location/book-location.module';
+import { SearchModule } from '@/modules/search/search.module';
 
 @Module({
-	imports: [BookCategoryModule, BookLocationModule],
+	imports: [BookCategoryModule, BookLocationModule, SearchModule],
 	controllers: [BookController],
 	providers: [PrismaService, BookService],
 })
