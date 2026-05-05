@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { SeedModule } from './seed.module';
-import { SeederService } from './seeder.service';
+import { SeederService } from './seeds/seeder.service';
 
 async function bootstrap() {
 	const logger = new Logger('SeederBootstrap');
