@@ -45,13 +45,10 @@ import { randomUUID } from 'node:crypto';
 
 						genReqId: (req) => req.headers['x-request-id'] || randomUUID(),
 
-						autoLogging: {
-							ignore: (req) => req.method === 'GET',
-						},
-
-						customLogLevel: (_req, res, err) => {
+						customLogLevel: (req, res, err) => {
 							if (res.statusCode >= 500 || err) return 'error';
 							if (res.statusCode >= 400) return 'warn';
+							if (req.method === 'GET') return 'silent';
 							return 'info';
 						},
 

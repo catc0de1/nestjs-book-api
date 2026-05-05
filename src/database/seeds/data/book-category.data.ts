@@ -1,4 +1,6 @@
-import type { BookCategoryData } from './interfaces/book-category.interface';
+export type BookCategoryData = {
+	name: string;
+};
 
 export const bookCategoryData: BookCategoryData[] = [
 	{ name: 'Programming' },

@@ -1,4 +1,6 @@
-import type { BookLocationData } from './interfaces/book-location.interface';
+export type BookLocationData = {
+	name: string;
+};
 
 export const bookLocationData: BookLocationData[] = [
 	{ name: 'A-01' },
