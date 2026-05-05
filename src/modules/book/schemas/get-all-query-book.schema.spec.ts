@@ -30,7 +30,7 @@ describe('getAllQueryBookSchema', () => {
 				const result = getAllQueryBookSchema.parse({});
 
 				expect(result.page).toBe(1);
-				expect(result.limit).toBe(20);
+				expect(result.limit).toBe(10);
 			});
 
 			it('should set page and limit string value to number', () => {
