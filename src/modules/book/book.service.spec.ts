@@ -5,7 +5,6 @@ import { PinoLogger } from 'nestjs-pino';
 import { PrismaService } from '@/common/prisma/prisma.service';
 import { BookCategoryService } from '@/modules/book-category/book-category.service';
 import { BookLocationService } from '@/modules/book-location/book-location.service';
-import { SearchService } from '@/modules/search/search.service';
 import { EVENT } from '@/modules/search/constants/event.constant';
 import { BookService } from './book.service';
 
@@ -19,9 +18,6 @@ describe('BookService', () => {
 
 	const mockBookCategoryService = mockPrisma.bookCategory;
 	const mockBookLocationService = mockPrisma.bookLocation;
-	const mockSearchService = {
-		search: jest.fn(),
-	};
 
 	beforeEach(async () => {
 		jest.clearAllMocks();
@@ -40,10 +36,6 @@ describe('BookService', () => {
 				{
 					provide: BookLocationService,
 					useValue: mockBookLocationService,
-				},
-				{
-					provide: SearchService,
-					useValue: mockSearchService,
 				},
 				{
 					provide: PinoLogger,

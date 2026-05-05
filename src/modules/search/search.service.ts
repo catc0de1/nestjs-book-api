@@ -9,7 +9,6 @@ import type { BookUpdatedEvent } from '@/modules/book/events/book-updated.event'
 import type { BookCategoryUpdatedEvent } from '@/modules/book-category/events/book-category-updated.event';
 import type { BookLocationUpdatedEvent } from '@/modules/book-location/events/book-location-updated.event';
 import type { BookDeletedEvent } from '@/modules/book/events/book-deleted.event';
-import type { SearchQueryBookDto } from '@/modules/book/schemas/search-query-book.schema';
 import type { BookSearchDocument } from './interfaces/book-search.interface';
 
 @Injectable()
@@ -101,48 +100,5 @@ export class SearchService implements OnModuleInit {
 		const index = this.meilisearchService.index(this.indexName);
 
 		return await index.deleteDocument(bookId);
-	}
-
-	async search(dto: SearchQueryBookDto) {
-		const index = this.meilisearchService.index(this.indexName);
-
-		const limit = dto.limit;
-		const offset = (dto.page - 1) * dto.limit;
-
-		const filters: string[] = [];
-
-		if (dto.bookCategoryFilter) {
-			filters.push(`category = "${dto.bookCategoryFilter}"`);
-		}
-
-		if (dto.bookLocationFilter) {
-			filters.push(`bookLocation = "${dto.bookLocationFilter}"`);
-		}
-
-		const sort: string[] = [];
-
-		if (dto.yearSort) {
-			sort.push(`year:${dto.yearSort}`);
-		} else {
-			sort.push('createdAt:desc');
-		}
-
-		const results = await index.search(dto.search, {
-			limit,
-			offset,
-			filter: filters.length > 0 ? filters.join(' AND ') : undefined,
-			sort: sort.length > 0 ? sort : undefined,
-			attributesToHighlight: ['title', 'author'],
-		});
-
-		return {
-			data: results.hits,
-			meta: {
-				total: results.estimatedTotalHits,
-				page: dto.page,
-				limit: dto.limit,
-				totalPages: Math.ceil(results.estimatedTotalHits / dto.limit),
-			},
-		};
 	}
 }

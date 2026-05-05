@@ -5,6 +5,5 @@ import { SearchListener } from './listeners/search.listener';
 
 @Module({
 	providers: [MeilisearchService, SearchService, SearchListener],
-	exports: [SearchService],
 })
 export class SearchModule {}

@@ -6,7 +6,6 @@ import { PrismaService } from '@/common/prisma/prisma.service';
 import { Prisma } from '@/generated/prisma/client';
 import { BookCategoryService } from '@/modules/book-category/book-category.service';
 import { BookLocationService } from '@/modules/book-location/book-location.service';
-import { SearchService } from '@/modules/search/search.service';
 import { EVENT } from '@/modules/search/constants/event.constant';
 import { BookCreatedEvent } from './events/book-created.event';
 import { BookDeletedEvent } from './events/book-deleted.event';
@@ -16,7 +15,6 @@ import type { Book } from '@/generated/prisma/client';
 import type { CreateBookDto } from './schemas/create-book.schema';
 import type { GetAllQueryBookDto } from './schemas/get-all-query-book.schema';
 import type { UpdateBookDto } from './schemas/update-book.schema';
-import type { SearchQueryBookDto } from './schemas/search-query-book.schema';
 import type { PaginatedResponse } from './interfaces/response.interface';
 
 @Injectable()
@@ -25,7 +23,6 @@ export class BookService extends BaseService {
 		private readonly prisma: PrismaService,
 		private readonly bookCategoryService: BookCategoryService,
 		private readonly bookLocationService: BookLocationService,
-		private readonly searchService: SearchService,
 		private readonly eventEmitter: EventEmitter2,
 		readonly logger: PinoLogger,
 	) {
@@ -278,9 +275,5 @@ export class BookService extends BaseService {
 		);
 
 		return deletedBook;
-	}
-
-	async search(query: SearchQueryBookDto) {
-		return this.searchService.search(query);
 	}
 }
